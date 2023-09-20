@@ -1,0 +1,12 @@
+package repository
+
+import (
+	"errors"
+
+	"github.com/jackc/pgconn"
+)
+
+var (
+	PgErr                *pgconn.PgError
+	ErrUserAlreadyExists = errors.New("user already exists")
+)

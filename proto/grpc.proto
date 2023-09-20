@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package internal;
+
+option go_package = "internal/proto";
+
+
+message RegisterRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message RegisterResponse {
+    string result = 1;
+}
+
+message LoginRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string result = 1;
+    optional string jwt = 2;
+}
+
+message TextDataRequest {
+    int64 userID = 1;
+    string uniqueKey = 2;
+    bytes textData = 3;
+    string uploadedAt = 4;
+    bytes metainfo = 5;
+}
+
+message BinaryDataRequest {
+    int64 userID = 1;
+    string uniqueKey = 2;
+    bytes binaryData = 3;
+    string uploadedAt = 4;
+    bytes metainfo = 5;
+}
+
+message CardDataRequest {
+    int64 userID = 1;
+    string uniqueKey = 2;
+    bytes cardNumberData = 3;
+    bytes cardNameData = 4;
+    bytes cardDateData = 5;
+    bytes cvvData = 6;
+    string uploadedAt = 7;
+    bytes metainfo = 8;
+}
+
+message Result {
+    string result = 1;
+}
+
+message Empty {}
+
+
+service MultiService {
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc AddTextData (TextDataRequest) returns (Result);
+    rpc AddBinaryData (BinaryDataRequest) returns (Result);
+    rpc AddCardData(CardDataRequest) returns (Result);
+}
