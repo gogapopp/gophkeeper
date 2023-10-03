@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 package internal;
 
 option go_package = "internal/proto";
@@ -28,7 +30,7 @@ message TextDataRequest {
     int64 userID = 1;
     string uniqueKey = 2;
     bytes textData = 3;
-    string uploadedAt = 4;
+    google.protobuf.Timestamp uploadedAt = 4;
     bytes metainfo = 5;
 }
 
@@ -36,7 +38,7 @@ message BinaryDataRequest {
     int64 userID = 1;
     string uniqueKey = 2;
     bytes binaryData = 3;
-    string uploadedAt = 4;
+    google.protobuf.Timestamp uploadedAt = 4;
     bytes metainfo = 5;
 }
 
@@ -47,7 +49,7 @@ message CardDataRequest {
     bytes cardNameData = 4;
     bytes cardDateData = 5;
     bytes cvvData = 6;
-    string uploadedAt = 7;
+    google.protobuf.Timestamp uploadedAt = 7;
     bytes metainfo = 8;
 }
 

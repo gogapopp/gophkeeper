@@ -20,7 +20,7 @@ func (gs *grpcServer) AddTextData(ctx context.Context, in *pb.TextDataRequest) (
 	}
 	err := gs.store.AddTextData(ctx, textdata)
 	if err != nil {
-		gs.log.Info(err)
+		gs.log.Error(err)
 		return nil, status.Error(codes.InvalidArgument, "bad request")
 	}
 	response.Result = "OK"
@@ -38,7 +38,7 @@ func (gs *grpcServer) AddBinaryData(ctx context.Context, in *pb.BinaryDataReques
 	}
 	err := gs.store.AddBinaryData(ctx, binarydata)
 	if err != nil {
-		gs.log.Info(err)
+		gs.log.Error(err)
 		return nil, status.Error(codes.InvalidArgument, "bad request")
 	}
 	response.Result = "OK"
@@ -59,7 +59,7 @@ func (gs *grpcServer) AddCardData(ctx context.Context, in *pb.CardDataRequest) (
 	}
 	err := gs.store.AddCardData(ctx, carddata)
 	if err != nil {
-		gs.log.Info(err)
+		gs.log.Error(err)
 		return nil, status.Error(codes.InvalidArgument, "bad request")
 	}
 	response.Result = "OK"

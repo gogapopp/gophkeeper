@@ -18,7 +18,7 @@ func (r *Repository) Register(ctx context.Context, user models.User) error {
 		if errors.As(err, &repository.PgErr) {
 			switch repository.PgErr.Code {
 			case "23505":
-				return repository.ErrUserAlreadyExists
+				return fmt.Errorf("%s: %s", op, repository.ErrUserAlreadyExists)
 			default:
 				return fmt.Errorf("%s: %s", op, err)
 			}
@@ -33,7 +33,7 @@ func (r *Repository) Login(ctx context.Context, user models.User) (string, error
 	var userID int
 	row := r.db.QueryRowContext(ctx, "SELECT user_id FROM users WHERE login=$1 AND password=$2", user.Login, user.Password)
 	if err := row.Scan(&userID); err != nil {
-		return "", sql.ErrNoRows
+		return "", fmt.Errorf("%s: %s", op, sql.ErrNoRows)
 	}
 	userIDstr := strconv.Itoa(userID)
 	return userIDstr, nil

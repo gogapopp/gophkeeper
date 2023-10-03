@@ -14,13 +14,10 @@ import (
 )
 
 func main() {
-	// устанавливаем конфиг
 	config, err := config.LoadConfig()
 	fatal(err)
-	// устанавливаем логгер
 	log, err := logger.SetupLogger()
 	fatal(err)
-	// получаем экземляр струтуры хранилища и *sql.DB
 	repo, db, err := postgres.NewRepo(config.GetString("grpc_server.serverDBdsn"))
 	fatal(err)
 	// закрываем подключение в БД при завершении программы
@@ -43,7 +40,7 @@ func main() {
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	<-sigint
-	log.Info("grpc shutdown")
+	log.Info("grpc server shutdown")
 }
 
 func fatal(err error) {

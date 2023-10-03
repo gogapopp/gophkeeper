@@ -6,10 +6,20 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/spf13/viper v1.16.0
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.58.1
 	google.golang.org/protobuf v1.31.0
+)
+
+require (
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell/v2 v2.6.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
+	github.com/rivo/uniseg v0.4.3 // indirect
+	golang.org/x/term v0.10.0 // indirect
 )
 
 require (
@@ -25,6 +35,7 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
+	github.com/rivo/tview v0.0.0-20230928053139-9bc1d28d88a9
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

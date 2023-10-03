@@ -20,7 +20,7 @@ func (gs *grpcServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb
 	}
 	err := gs.auth.Register(ctx, user)
 	if err != nil {
-		gs.log.Info(err)
+		gs.log.Error(err)
 		if strings.Contains(err.Error(), repository.ErrUserAlreadyExists.Error()) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
@@ -38,7 +38,7 @@ func (gs *grpcServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Login
 	}
 	token, err := gs.auth.Login(ctx, user)
 	if err != nil {
-		gs.log.Info(err)
+		gs.log.Error(err)
 		if strings.Contains(err.Error(), sql.ErrNoRows.Error()) {
 			return nil, status.Error(codes.Unauthenticated, "incorrect password or login")
 		}

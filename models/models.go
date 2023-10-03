@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
 
 type (
 	// User
@@ -14,7 +18,7 @@ type (
 		UserID     int64
 		UniqueKey  string
 		BinaryData []byte
-		UploadedAt string
+		UploadedAt *timestamppb.Timestamp
 		Metainfo   []byte
 	}
 
@@ -22,7 +26,7 @@ type (
 		UserID     int64
 		UniqueKey  string
 		TextData   []byte
-		UploadedAt string
+		UploadedAt *timestamppb.Timestamp
 		Metainfo   []byte
 	}
 
@@ -33,7 +37,7 @@ type (
 		CardNameData   []byte
 		CardDateData   []byte
 		CvvData        []byte
-		UploadedAt     string
+		UploadedAt     *timestamppb.Timestamp
 		Metainfo       []byte
 	}
 )

@@ -25,6 +25,7 @@ func LoadConfig() (*viper.Viper, error) {
 		v.SetConfigName(configFileName)
 		v.SetConfigType(configType)
 		v.AddConfigPath(configPath)
+		v.BindEnv()
 		err := v.ReadInConfig()
 		if err != nil {
 			errconfig = err

@@ -1,10 +1,10 @@
-package postgres
+package sqlite
 
 import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Repository struct {
@@ -12,9 +12,9 @@ type Repository struct {
 }
 
 // NewRepo подключается к БД и создаёт sql таблицы
-func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
-	const op = "postgres.postgresql.NewRepo"
-	db, err := sql.Open("pgx", serverDBdsn)
+func NewRepo(clientDBdsn string) (*Repository, *sql.DB, error) {
+	const op = "sqlite.sqlite.NewRepo"
+	db, err := sql.Open("sqlite3", clientDBdsn)
 	if err != nil {
 		return nil, nil, fmt.Errorf("%s: %s", op, err)
 	}
@@ -25,14 +25,6 @@ func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
 	}
 
 	_, err = db.Exec(`
-	CREATE TABLE IF NOT EXISTS users (
-		user_id SERIAL PRIMARY KEY,
-		login VARCHAR(256) NOT NULL UNIQUE,
-		password VARCHAR(256) NOT NULL,
-		last_update_at TIMESTAMPTZ
-	);
-	CREATE UNIQUE INDEX IF NOT EXISTS idx_login ON users(login);
-
 	CREATE TABLE IF NOT EXISTS textdata (
 		text_data_id SERIAL PRIMARY KEY,
 		user_id INT NOT NULL,

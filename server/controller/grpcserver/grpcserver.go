@@ -28,7 +28,10 @@ func NewGRPCServer(log *zap.SugaredLogger, auth *usecase.AuthUsecase, store *use
 	// }
 	// opts...
 	// создаём экземпляр grpc сервера
-	grpcserver := grpc.NewServer()
+	grpcserver := grpc.NewServer(
+		grpc.MaxRecvMsgSize(50*1024*1024),
+		grpc.MaxSendMsgSize(50*1024*1024),
+	)
 	pb.RegisterMultiServiceServer(grpcserver, &grpcServer{log: log, auth: auth, store: store})
 	return grpcserver
 }
@@ -36,12 +39,12 @@ func NewGRPCServer(log *zap.SugaredLogger, auth *usecase.AuthUsecase, store *use
 // RunGRPCServer запускает grpc
 func RunGRPCServer(auth *usecase.AuthUsecase, store *usecase.StorageUsecase, log *zap.SugaredLogger, config *viper.Viper) (*grpc.Server, error) {
 	grpcserver := NewGRPCServer(log, auth, store, config)
-	addres := config.GetString("grpc_server.address")
-	listen, err := net.Listen("tcp", addres)
+	address := config.GetString("grpc_server.address")
+	listen, err := net.Listen("tcp", address)
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("Running the server at: %s", addres)
+	log.Infof("Running the server at: %s", address)
 	if err = grpcserver.Serve(listen); err != nil {
 		return nil, err
 	}
