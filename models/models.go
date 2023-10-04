@@ -40,4 +40,10 @@ type (
 		UploadedAt     *timestamppb.Timestamp
 		Metainfo       []byte
 	}
+
+	SyncData struct {
+		TextData   []TextData
+		BinaryData []BinaryData
+		CardData   []CardData
+	}
 )

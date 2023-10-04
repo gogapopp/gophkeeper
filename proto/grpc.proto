@@ -53,8 +53,18 @@ message CardDataRequest {
     bytes metainfo = 8;
 }
 
-message Result {
-    string result = 1;
+message SyncRequest {
+    map<string, RepeatedUniqueKeys> keys = 1;
+}
+
+message SyncResponse {
+    repeated TextDataRequest TextData = 1;
+    repeated BinaryDataRequest BinaryData = 2;
+    repeated CardDataRequest CardData = 3;
+}
+
+message RepeatedUniqueKeys {
+    repeated string values = 1;
 }
 
 message Empty {}
@@ -63,7 +73,8 @@ message Empty {}
 service MultiService {
     rpc Register (RegisterRequest) returns (RegisterResponse);
     rpc Login (LoginRequest) returns (LoginResponse);
-    rpc AddTextData (TextDataRequest) returns (Result);
-    rpc AddBinaryData (BinaryDataRequest) returns (Result);
-    rpc AddCardData(CardDataRequest) returns (Result);
+    rpc AddTextData (TextDataRequest) returns (Empty);
+    rpc AddBinaryData (BinaryDataRequest) returns (Empty);
+    rpc AddCardData(CardDataRequest) returns (Empty);
+    rpc SyncData(SyncRequest) returns (SyncResponse);
 }

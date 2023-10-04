@@ -24,6 +24,7 @@ const (
 	MultiService_AddTextData_FullMethodName   = "/internal.MultiService/AddTextData"
 	MultiService_AddBinaryData_FullMethodName = "/internal.MultiService/AddBinaryData"
 	MultiService_AddCardData_FullMethodName   = "/internal.MultiService/AddCardData"
+	MultiService_SyncData_FullMethodName      = "/internal.MultiService/SyncData"
 )
 
 // MultiServiceClient is the client API for MultiService service.
@@ -32,9 +33,10 @@ const (
 type MultiServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	AddTextData(ctx context.Context, in *TextDataRequest, opts ...grpc.CallOption) (*Result, error)
-	AddBinaryData(ctx context.Context, in *BinaryDataRequest, opts ...grpc.CallOption) (*Result, error)
-	AddCardData(ctx context.Context, in *CardDataRequest, opts ...grpc.CallOption) (*Result, error)
+	AddTextData(ctx context.Context, in *TextDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	AddBinaryData(ctx context.Context, in *BinaryDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	AddCardData(ctx context.Context, in *CardDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	SyncData(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error)
 }
 
 type multiServiceClient struct {
@@ -63,8 +65,8 @@ func (c *multiServiceClient) Login(ctx context.Context, in *LoginRequest, opts .
 	return out, nil
 }
 
-func (c *multiServiceClient) AddTextData(ctx context.Context, in *TextDataRequest, opts ...grpc.CallOption) (*Result, error) {
-	out := new(Result)
+func (c *multiServiceClient) AddTextData(ctx context.Context, in *TextDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, MultiService_AddTextData_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,8 +74,8 @@ func (c *multiServiceClient) AddTextData(ctx context.Context, in *TextDataReques
 	return out, nil
 }
 
-func (c *multiServiceClient) AddBinaryData(ctx context.Context, in *BinaryDataRequest, opts ...grpc.CallOption) (*Result, error) {
-	out := new(Result)
+func (c *multiServiceClient) AddBinaryData(ctx context.Context, in *BinaryDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, MultiService_AddBinaryData_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -81,9 +83,18 @@ func (c *multiServiceClient) AddBinaryData(ctx context.Context, in *BinaryDataRe
 	return out, nil
 }
 
-func (c *multiServiceClient) AddCardData(ctx context.Context, in *CardDataRequest, opts ...grpc.CallOption) (*Result, error) {
-	out := new(Result)
+func (c *multiServiceClient) AddCardData(ctx context.Context, in *CardDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, MultiService_AddCardData_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *multiServiceClient) SyncData(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error) {
+	out := new(SyncResponse)
+	err := c.cc.Invoke(ctx, MultiService_SyncData_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,9 +107,10 @@ func (c *multiServiceClient) AddCardData(ctx context.Context, in *CardDataReques
 type MultiServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	AddTextData(context.Context, *TextDataRequest) (*Result, error)
-	AddBinaryData(context.Context, *BinaryDataRequest) (*Result, error)
-	AddCardData(context.Context, *CardDataRequest) (*Result, error)
+	AddTextData(context.Context, *TextDataRequest) (*Empty, error)
+	AddBinaryData(context.Context, *BinaryDataRequest) (*Empty, error)
+	AddCardData(context.Context, *CardDataRequest) (*Empty, error)
+	SyncData(context.Context, *SyncRequest) (*SyncResponse, error)
 	mustEmbedUnimplementedMultiServiceServer()
 }
 
@@ -112,14 +124,17 @@ func (UnimplementedMultiServiceServer) Register(context.Context, *RegisterReques
 func (UnimplementedMultiServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedMultiServiceServer) AddTextData(context.Context, *TextDataRequest) (*Result, error) {
+func (UnimplementedMultiServiceServer) AddTextData(context.Context, *TextDataRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddTextData not implemented")
 }
-func (UnimplementedMultiServiceServer) AddBinaryData(context.Context, *BinaryDataRequest) (*Result, error) {
+func (UnimplementedMultiServiceServer) AddBinaryData(context.Context, *BinaryDataRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddBinaryData not implemented")
 }
-func (UnimplementedMultiServiceServer) AddCardData(context.Context, *CardDataRequest) (*Result, error) {
+func (UnimplementedMultiServiceServer) AddCardData(context.Context, *CardDataRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCardData not implemented")
+}
+func (UnimplementedMultiServiceServer) SyncData(context.Context, *SyncRequest) (*SyncResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncData not implemented")
 }
 func (UnimplementedMultiServiceServer) mustEmbedUnimplementedMultiServiceServer() {}
 
@@ -224,6 +239,24 @@ func _MultiService_AddCardData_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MultiService_SyncData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MultiServiceServer).SyncData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MultiService_SyncData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MultiServiceServer).SyncData(ctx, req.(*SyncRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MultiService_ServiceDesc is the grpc.ServiceDesc for MultiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +283,10 @@ var MultiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddCardData",
 			Handler:    _MultiService_AddCardData_Handler,
+		},
+		{
+			MethodName: "SyncData",
+			Handler:    _MultiService_SyncData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

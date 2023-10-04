@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/gogapopp/gophkeeper/client/grpc_client"
 	"github.com/gogapopp/gophkeeper/client/lib/luhn"
@@ -52,8 +53,7 @@ func (a *Application) registerForm(app *tview.Application) *tview.Form {
 				Login:    login,
 				Password: password,
 			}
-			response, err := a.grpcClient.Register(context.Background(), user)
-			_ = response
+			err := a.grpcClient.Register(context.Background(), user)
 			// если поля login и password пустые
 			if login == "" || password == "" {
 				// если кнопки нет то добавляем
@@ -178,6 +178,14 @@ func (a *Application) dataPagesForm(app *tview.Application) *tview.Form {
 			}
 
 		}).
+		AddButton("Sync", func() {
+			err := a.grpcClient.SyncData(context.Background(), a.userID)
+			if err != nil {
+				dataPagesForm.GetButton(dataPagesForm.GetButtonIndex("Sync")).SetLabel("Error")
+				time.Sleep(1 * time.Second)
+				dataPagesForm.GetButton(dataPagesForm.GetButtonIndex("Error")).SetLabel("Sync")
+			}
+		}).
 		AddButton("Quit", func() {
 			app.Stop()
 		})
@@ -208,7 +216,7 @@ func (a *Application) textDataForm(app *tview.Application) *tview.Form {
 				Metainfo: []byte(metainfo),
 				UserID:   int64(a.userID),
 			}
-			_, err := a.grpcClient.AddTextData(context.Background(), textdata, a.userSecretPhrase)
+			err := a.grpcClient.AddTextData(context.Background(), textdata, a.userSecretPhrase)
 			if err != nil {
 				return
 			}
@@ -250,6 +258,9 @@ func (a *Application) binaryDataForm(app *tview.Application) *tview.Form {
 			}
 			file, err := readfile.ReadFile(binaryFile)
 			if err != nil {
+				// binaryDataForm.GetButton(binaryDataForm.GetButtonIndex("Saved")).SetLabel("Error")
+				// time.Sleep(2 * time.Second)
+				// binaryDataForm.GetButton(binaryDataForm.GetButtonIndex("Error")).SetLabel("Saved")
 				return
 			}
 			binarydata := models.BinaryData{
@@ -257,7 +268,7 @@ func (a *Application) binaryDataForm(app *tview.Application) *tview.Form {
 				Metainfo:   []byte(metainfo),
 				UserID:     int64(a.userID),
 			}
-			_, err = a.grpcClient.AddBinaryData(context.Background(), binarydata, a.userSecretPhrase)
+			err = a.grpcClient.AddBinaryData(context.Background(), binarydata, a.userSecretPhrase)
 			if err != nil {
 				return
 			}
@@ -311,7 +322,7 @@ func (a *Application) cardDataForm(app *tview.Application) *tview.Form {
 				Metainfo:       []byte(metainfo),
 				UserID:         int64(a.userID),
 			}
-			_, err := a.grpcClient.AddCardData(context.Background(), carddata, a.userSecretPhrase)
+			err := a.grpcClient.AddCardData(context.Background(), carddata, a.userSecretPhrase)
 			if err != nil {
 				return
 			}

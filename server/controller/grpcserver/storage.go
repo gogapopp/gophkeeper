@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (gs *grpcServer) AddTextData(ctx context.Context, in *pb.TextDataRequest) (*pb.Result, error) {
-	var response pb.Result
+func (gs *grpcServer) AddTextData(ctx context.Context, in *pb.TextDataRequest) (*pb.Empty, error) {
+	var response pb.Empty
 	textdata := models.TextData{
 		UserID:     in.UserID,
 		UniqueKey:  in.UniqueKey,
@@ -23,12 +23,11 @@ func (gs *grpcServer) AddTextData(ctx context.Context, in *pb.TextDataRequest) (
 		gs.log.Error(err)
 		return nil, status.Error(codes.InvalidArgument, "bad request")
 	}
-	response.Result = "OK"
 	return &response, nil
 }
 
-func (gs *grpcServer) AddBinaryData(ctx context.Context, in *pb.BinaryDataRequest) (*pb.Result, error) {
-	var response pb.Result
+func (gs *grpcServer) AddBinaryData(ctx context.Context, in *pb.BinaryDataRequest) (*pb.Empty, error) {
+	var response pb.Empty
 	binarydata := models.BinaryData{
 		UserID:     in.UserID,
 		UniqueKey:  in.UniqueKey,
@@ -41,12 +40,11 @@ func (gs *grpcServer) AddBinaryData(ctx context.Context, in *pb.BinaryDataReques
 		gs.log.Error(err)
 		return nil, status.Error(codes.InvalidArgument, "bad request")
 	}
-	response.Result = "OK"
 	return &response, nil
 }
 
-func (gs *grpcServer) AddCardData(ctx context.Context, in *pb.CardDataRequest) (*pb.Result, error) {
-	var response pb.Result
+func (gs *grpcServer) AddCardData(ctx context.Context, in *pb.CardDataRequest) (*pb.Empty, error) {
+	var response pb.Empty
 	carddata := models.CardData{
 		UserID:         in.UserID,
 		UniqueKey:      in.UniqueKey,
@@ -62,6 +60,5 @@ func (gs *grpcServer) AddCardData(ctx context.Context, in *pb.CardDataRequest) (
 		gs.log.Error(err)
 		return nil, status.Error(codes.InvalidArgument, "bad request")
 	}
-	response.Result = "OK"
 	return &response, nil
 }

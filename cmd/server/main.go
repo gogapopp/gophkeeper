@@ -30,9 +30,10 @@ func main() {
 	authusecase := usecase.NewAuthUsecase(repo)
 	// создаём сервис хранения данных
 	storeusecase := usecase.NewStorageUsecase(repo)
+	getusecase := usecase.NewGetUsecase(repo)
 	// запускаем сервер
 	go func() {
-		GRPCserver, err := grpcserver.RunGRPCServer(authusecase, storeusecase, log, config)
+		GRPCserver, err := grpcserver.RunGRPCServer(authusecase, storeusecase, log, getusecase, config)
 		fatal(err)
 		defer GRPCserver.GracefulStop()
 	}()

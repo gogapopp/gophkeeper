@@ -16,16 +16,16 @@ type Hasher interface {
 	HashCardData(carddata models.CardData, userSecretPhrase string) (models.CardData, error)
 }
 
-func (g *GRPCClient) Register(ctx context.Context, user models.User) (*pb.RegisterResponse, error) {
+func (g *GRPCClient) Register(ctx context.Context, user models.User) error {
 	request := &pb.RegisterRequest{
 		Login:    user.Login,
 		Password: user.Password,
 	}
-	response, err := g.grpcClient.Register(ctx, request)
+	_, err := g.grpcClient.Register(ctx, request)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return response, nil
+	return nil
 }
 
 func (g *GRPCClient) Login(ctx context.Context, user models.User) (*pb.LoginResponse, error) {
@@ -40,10 +40,10 @@ func (g *GRPCClient) Login(ctx context.Context, user models.User) (*pb.LoginResp
 	return response, nil
 }
 
-func (g *GRPCClient) AddTextData(ctx context.Context, textData models.TextData, userSecretPhrase string) (*pb.Result, error) {
+func (g *GRPCClient) AddTextData(ctx context.Context, textData models.TextData, userSecretPhrase string) error {
 	textData, err := g.hashService.HashTextData(textData, userSecretPhrase)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	request := &pb.TextDataRequest{
 		TextData:   textData.TextData,
@@ -52,21 +52,21 @@ func (g *GRPCClient) AddTextData(ctx context.Context, textData models.TextData, 
 		UploadedAt: timestamppb.New(time.Now()),
 		UniqueKey:  random.GenerateUniqueKey(),
 	}
-	response, err := g.grpcClient.AddTextData(ctx, request)
+	_, err = g.grpcClient.AddTextData(ctx, request)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = g.saveService.AddTextData(ctx, textData)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return response, nil
+	return nil
 }
 
-func (g *GRPCClient) AddBinaryData(ctx context.Context, binaryData models.BinaryData, userSecretPhrase string) (*pb.Result, error) {
+func (g *GRPCClient) AddBinaryData(ctx context.Context, binaryData models.BinaryData, userSecretPhrase string) error {
 	binaryData, err := g.hashService.HashBinaryData(binaryData, userSecretPhrase)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	request := &pb.BinaryDataRequest{
 		BinaryData: binaryData.BinaryData,
@@ -75,21 +75,21 @@ func (g *GRPCClient) AddBinaryData(ctx context.Context, binaryData models.Binary
 		UploadedAt: timestamppb.New(time.Now()),
 		UniqueKey:  random.GenerateUniqueKey(),
 	}
-	response, err := g.grpcClient.AddBinaryData(ctx, request)
+	_, err = g.grpcClient.AddBinaryData(ctx, request)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = g.saveService.AddBinaryData(ctx, binaryData)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return response, nil
+	return nil
 }
 
-func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, userSecretPhrase string) (*pb.Result, error) {
+func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, userSecretPhrase string) error {
 	cardData, err := g.hashService.HashCardData(cardData, userSecretPhrase)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	request := &pb.CardDataRequest{
 		CardNumberData: cardData.CardNumberData,
@@ -101,13 +101,39 @@ func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, 
 		UploadedAt:     timestamppb.New(time.Now()),
 		UniqueKey:      random.GenerateUniqueKey(),
 	}
-	response, err := g.grpcClient.AddCardData(ctx, request)
+	_, err = g.grpcClient.AddCardData(ctx, request)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = g.saveService.AddCardData(ctx, cardData)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return response, nil
+	return nil
+}
+
+func (g *GRPCClient) SyncData(ctx context.Context, userID int) error {
+	uniqueKeys, err := g.getService.GetUniqueKeys(ctx, userID)
+	if err != nil {
+		g.log.Info(err)
+		return err
+	}
+	uniqueKeysProto := make(map[string]*pb.RepeatedUniqueKeys)
+	for key, values := range uniqueKeys {
+		uniqueKeysProto[key] = &pb.RepeatedUniqueKeys{Values: values}
+	}
+	request := &pb.SyncRequest{
+		Keys: uniqueKeysProto,
+	}
+	response, err := g.grpcClient.SyncData(ctx, request)
+	if err != nil {
+		g.log.Info(err)
+		return err
+	}
+	err = g.saveService.SaveDatas(ctx, response)
+	if err != nil {
+		g.log.Info(err)
+		return err
+	}
+	return nil
 }
