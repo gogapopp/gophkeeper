@@ -2,12 +2,15 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gogapopp/gophkeeper/client/grpc_client"
+	"github.com/gogapopp/gophkeeper/client/lib/file"
 	"github.com/gogapopp/gophkeeper/client/lib/luhn"
-	"github.com/gogapopp/gophkeeper/client/lib/readfile"
+	"github.com/gogapopp/gophkeeper/client/service"
 	"github.com/gogapopp/gophkeeper/internal/jwt"
 	"github.com/gogapopp/gophkeeper/models"
 	"github.com/rivo/tview"
@@ -20,12 +23,14 @@ type Application struct {
 	userSecretPhrase string
 	userID           int
 	grpcClient       *grpc_client.GRPCClient
+	getService       *service.GetService
 	log              *zap.SugaredLogger
 }
 
-func NewApplication(grpcClient *grpc_client.GRPCClient, log *zap.SugaredLogger) *Application {
+func NewApplication(grpcClient *grpc_client.GRPCClient, getService *service.GetService, log *zap.SugaredLogger) *Application {
 	return &Application{
 		grpcClient: grpcClient,
+		getService: getService,
 		log:        log,
 	}
 }
@@ -117,6 +122,12 @@ func (a *Application) loginForm(app *tview.Application) *tview.Form {
 				Login:    login,
 				Password: password,
 			}
+			if login == "" || password == "" {
+				if loginForm.GetButtonIndex("Incorrect login or password") == -1 {
+					loginForm.AddButton("Incorrect login or password", nil)
+					return
+				}
+			}
 			response, err := a.grpcClient.Login(context.Background(), user)
 			if err == nil {
 				userID, err := jwt.ParseToken(*response.Jwt)
@@ -159,31 +170,30 @@ func (a *Application) loginForm(app *tview.Application) *tview.Form {
 func (a *Application) dataPagesForm(app *tview.Application) *tview.Form {
 	dataPagesForm := tview.NewForm()
 	dataPagesForm.
-		AddButton("Text Data Page", func() {
-			textDataForm := a.textDataForm(app)
-			if err := app.SetRoot(textDataForm, true).EnableMouse(true).Run(); err != nil {
+		AddButton("Save", func() {
+			saveDataPagesForm := a.saveDataPagesForm(app)
+			if err := app.SetRoot(saveDataPagesForm, true).EnableMouse(true).Run(); err != nil {
 				applicationErr = fmt.Errorf("app.dataPagesForm.%s", err)
 			}
 		}).
-		AddButton("Binary Data Page", func() {
-			binaryDataForm := a.binaryDataForm(app)
-			if err := app.SetRoot(binaryDataForm, true).EnableMouse(true).Run(); err != nil {
+		AddButton("Get", func() {
+			getDataPagesForm := a.getDataPagesForm(app)
+			if err := app.SetRoot(getDataPagesForm, true).EnableMouse(true).Run(); err != nil {
 				applicationErr = fmt.Errorf("app.dataPagesForm.%s", err)
 			}
 		}).
-		AddButton("Bank Card Data Page", func() {
-			cardDataForm := a.cardDataForm(app)
-			if err := app.SetRoot(cardDataForm, true).EnableMouse(true).Run(); err != nil {
+		AddButton("Return back", func() {
+			loginForm := a.loginForm(app)
+			if err := app.SetRoot(loginForm, true).EnableMouse(true).Run(); err != nil {
 				applicationErr = fmt.Errorf("app.dataPagesForm.%s", err)
 			}
-
 		}).
 		AddButton("Sync", func() {
 			err := a.grpcClient.SyncData(context.Background(), a.userID)
 			if err != nil {
-				dataPagesForm.GetButton(dataPagesForm.GetButtonIndex("Sync")).SetLabel("Error")
-				time.Sleep(1 * time.Second)
-				dataPagesForm.GetButton(dataPagesForm.GetButtonIndex("Error")).SetLabel("Sync")
+				if dataPagesForm.GetButtonIndex("Error") == -1 {
+					dataPagesForm.AddButton("Error", nil)
+				}
 			}
 		}).
 		AddButton("Quit", func() {
@@ -191,6 +201,76 @@ func (a *Application) dataPagesForm(app *tview.Application) *tview.Form {
 		})
 	dataPagesForm.SetBorder(true).SetTitle("Gophkeeper").SetTitleAlign(tview.AlignCenter)
 	return dataPagesForm
+}
+
+func (a *Application) getDataPagesForm(app *tview.Application) *tview.Form {
+	getDataPagesForm := tview.NewForm()
+	getDataPagesForm.
+		AddButton("Text Data Page", func() {
+			getTextDataForm := a.getTextDataForm(app)
+			if err := app.SetRoot(getTextDataForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.getDataPagesForm.%s", err)
+			}
+		}).
+		AddButton("Binary Data Page", func() {
+			getBinaryDataForm := a.getBinaryDataForm(app)
+			if err := app.SetRoot(getBinaryDataForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.getDataPagesForm.%s", err)
+			}
+		}).
+		AddButton("Card Data Page", func() {
+			getCardDataForm := a.getCardDataForm(app)
+			if err := app.SetRoot(getCardDataForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.getDataPagesForm.%s", err)
+			}
+		}).
+		AddButton("Return back", func() {
+			dataPagesForm := a.dataPagesForm(app)
+			if err := app.SetRoot(dataPagesForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.getDataPagesForm.%s", err)
+			}
+		}).
+		AddButton("Quit", func() {
+			app.Stop()
+		})
+	getDataPagesForm.SetBorder(true).SetTitle("Gophkeeper").SetTitleAlign(tview.AlignCenter)
+	return getDataPagesForm
+
+}
+
+func (a *Application) saveDataPagesForm(app *tview.Application) *tview.Form {
+	saveDataPagesForm := tview.NewForm()
+	saveDataPagesForm.
+		AddButton("Text Data Page", func() {
+			textDataForm := a.textDataForm(app)
+			if err := app.SetRoot(textDataForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.saveDataPagesForm.%s", err)
+			}
+		}).
+		AddButton("Binary Data Page", func() {
+			binaryDataForm := a.binaryDataForm(app)
+			if err := app.SetRoot(binaryDataForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.saveDataPagesForm.%s", err)
+			}
+		}).
+		AddButton("Bank Card Data Page", func() {
+			cardDataForm := a.cardDataForm(app)
+			if err := app.SetRoot(cardDataForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.saveDataPagesForm.%s", err)
+			}
+
+		}).
+		AddButton("Return back", func() {
+			dataPagesForm := a.dataPagesForm(app)
+			if err := app.SetRoot(dataPagesForm, true).EnableMouse(true).Run(); err != nil {
+				applicationErr = fmt.Errorf("app.saveDataPagesForm.%s", err)
+			}
+		}).
+		AddButton("Quit", func() {
+			app.Stop()
+		})
+	saveDataPagesForm.SetBorder(true).SetTitle("Gophkeeper").SetTitleAlign(tview.AlignCenter)
+	return saveDataPagesForm
 }
 
 func (a *Application) textDataForm(app *tview.Application) *tview.Form {
@@ -229,8 +309,8 @@ func (a *Application) textDataForm(app *tview.Application) *tview.Form {
 			}
 		}).
 		AddButton("Return back", func() {
-			dataPagesForm := a.dataPagesForm(app)
-			if err := app.SetRoot(dataPagesForm, true).EnableMouse(true).Run(); err != nil {
+			saveDataPagesForm := a.saveDataPagesForm(app)
+			if err := app.SetRoot(saveDataPagesForm, true).EnableMouse(true).Run(); err != nil {
 				applicationErr = fmt.Errorf("app.textDataForm.%s", err)
 			}
 		})
@@ -256,11 +336,11 @@ func (a *Application) binaryDataForm(app *tview.Application) *tview.Form {
 				}
 				return
 			}
-			file, err := readfile.ReadFile(binaryFile)
+			file, err := file.ReadFile(binaryFile)
 			if err != nil {
-				// binaryDataForm.GetButton(binaryDataForm.GetButtonIndex("Saved")).SetLabel("Error")
-				// time.Sleep(2 * time.Second)
-				// binaryDataForm.GetButton(binaryDataForm.GetButtonIndex("Error")).SetLabel("Saved")
+				binaryDataForm.GetButton(binaryDataForm.GetButtonIndex("Saved")).SetLabel("Error")
+				time.Sleep(2 * time.Second)
+				binaryDataForm.GetButton(binaryDataForm.GetButtonIndex("Error")).SetLabel("Saved")
 				return
 			}
 			binarydata := models.BinaryData{
@@ -281,8 +361,8 @@ func (a *Application) binaryDataForm(app *tview.Application) *tview.Form {
 			}
 		}).
 		AddButton("Return back", func() {
-			dataPagesForm := a.dataPagesForm(app)
-			if err := app.SetRoot(dataPagesForm, true).EnableMouse(true).Run(); err != nil {
+			saveDataPagesForm := a.saveDataPagesForm(app)
+			if err := app.SetRoot(saveDataPagesForm, true).EnableMouse(true).Run(); err != nil {
 				applicationErr = fmt.Errorf("app.binaryDataForm.%s", err)
 			}
 		})
@@ -324,8 +404,12 @@ func (a *Application) cardDataForm(app *tview.Application) *tview.Form {
 			}
 			err := a.grpcClient.AddCardData(context.Background(), carddata, a.userSecretPhrase)
 			if err != nil {
+				if cardDataForm.GetButtonIndex("Incorrect") == -1 {
+					cardDataForm.AddButton("Incorrect", nil)
+				}
 				return
 			}
+
 			if cardDataForm.GetButtonIndex("Saved") != -1 {
 				idx := cardDataForm.GetButtonIndex("Saved")
 				cardDataForm.RemoveButton(idx)
@@ -335,11 +419,130 @@ func (a *Application) cardDataForm(app *tview.Application) *tview.Form {
 			}
 		}).
 		AddButton("Return back", func() {
-			dataPagesForm := a.dataPagesForm(app)
-			if err := app.SetRoot(dataPagesForm, true).EnableMouse(true).Run(); err != nil {
+			saveDataPagesForm := a.saveDataPagesForm(app)
+			if err := app.SetRoot(saveDataPagesForm, true).EnableMouse(true).Run(); err != nil {
 				applicationErr = fmt.Errorf("app.cardDataForm.%s", err)
 			}
 		})
 	cardDataForm.SetBorder(true).SetTitle("Gophkeeper").SetTitleAlign(tview.AlignCenter)
 	return cardDataForm
+}
+
+func (a *Application) getTextDataForm(app *tview.Application) *tview.Form {
+	getTextDataForm := tview.NewForm()
+	getTextDataForm.
+		AddTextView("GET TEXT DATA:", "you will get a .txt file with the selected text data", 20, 6, true, true)
+	keys, err := a.getService.GetDatas(context.Background(), "textdata")
+	if err != nil {
+		if getTextDataForm.GetButtonIndex("Error") == -1 {
+			getTextDataForm.AddButton("Error", nil)
+		}
+	}
+	getTextDataForm.AddInputField("Unique key", "", 20, nil, nil)
+	for k, v := range keys {
+		getTextDataForm.AddTextView(fmt.Sprintf("%d", k), v, 20, 1, true, true)
+	}
+	getTextDataForm.AddButton("Get .txt", func() {
+		strkey := getTextDataForm.GetFormItemByLabel("Unique key").(*tview.InputField).GetText()
+		intkey, _ := strconv.Atoi(strkey)
+		_, err := a.getService.GetTextData(context.Background(), intkey, a.userSecretPhrase)
+		if err != nil {
+			if errors.Is(err, errors.New("invalid hash key")) {
+				if getTextDataForm.GetButtonIndex("Error Secret Phrase") == -1 {
+					getTextDataForm.AddButton("Error Secret Phrase", nil)
+				}
+			}
+			if getTextDataForm.GetButtonIndex("Error") == -1 {
+				getTextDataForm.AddButton("Error", nil)
+			}
+		}
+	})
+	getTextDataForm.AddButton("Return back", func() {
+		getDataPagesForm := a.getDataPagesForm(app)
+		if err := app.SetRoot(getDataPagesForm, true).EnableMouse(true).Run(); err != nil {
+			applicationErr = fmt.Errorf("app.getTextDataForm.%s", err)
+		}
+	})
+	getTextDataForm.SetBorder(true).SetTitle("Gophkeeper").SetTitleAlign(tview.AlignCenter)
+	return getTextDataForm
+}
+
+func (a *Application) getBinaryDataForm(app *tview.Application) *tview.Form {
+	getBinaryDataForm := tview.NewForm()
+	getBinaryDataForm.
+		AddTextView("GET BINARY DATA:", "you will get a .txt file with the selected card data", 20, 6, true, true)
+	keys, err := a.getService.GetDatas(context.Background(), "binarydata")
+	if err != nil {
+		if getBinaryDataForm.GetButtonIndex("Error") == -1 {
+			getBinaryDataForm.AddButton("Error", nil)
+		}
+	}
+	getBinaryDataForm.AddInputField("Unique key", "", 20, nil, nil)
+	for k, v := range keys {
+		getBinaryDataForm.AddTextView(fmt.Sprintf("%d", k), v, 20, 1, true, true)
+	}
+	getBinaryDataForm.AddButton("Get .txt", func() {
+		strkey := getBinaryDataForm.GetFormItemByLabel("Unique key").(*tview.InputField).GetText()
+		intkey, _ := strconv.Atoi(strkey)
+		_, err := a.getService.GetBinaryData(context.Background(), intkey, a.userSecretPhrase)
+		a.log.Info(err)
+		if err != nil {
+			if errors.Is(err, errors.New("invalid hash key")) {
+				if getBinaryDataForm.GetButtonIndex("Error Secret Phrase") == -1 {
+					getBinaryDataForm.AddButton("Error Secret Phrase", nil)
+				}
+			}
+			if getBinaryDataForm.GetButtonIndex("Error") == -1 {
+				getBinaryDataForm.AddButton("Error", nil)
+			}
+		}
+	})
+	getBinaryDataForm.AddButton("Return back", func() {
+		getDataPagesForm := a.getDataPagesForm(app)
+		if err := app.SetRoot(getDataPagesForm, true).EnableMouse(true).Run(); err != nil {
+			applicationErr = fmt.Errorf("app.getCardDataForm.%s", err)
+		}
+	})
+	getBinaryDataForm.SetBorder(true).SetTitle("Gophkeeper").SetTitleAlign(tview.AlignCenter)
+	return getBinaryDataForm
+}
+
+func (a *Application) getCardDataForm(app *tview.Application) *tview.Form {
+	getCardDataForm := tview.NewForm()
+	getCardDataForm.
+		AddTextView("GET CARD DATA:", "you will get a .txt file with the selected card data", 20, 6, true, true)
+	keys, err := a.getService.GetDatas(context.Background(), "carddata")
+	if err != nil {
+		if getCardDataForm.GetButtonIndex("Error") == -1 {
+			getCardDataForm.AddButton("Error", nil)
+		}
+	}
+	getCardDataForm.AddInputField("Unique key", "", 20, nil, nil)
+	for k, v := range keys {
+		getCardDataForm.AddTextView(fmt.Sprintf("%d", k), v, 20, 1, true, true)
+	}
+	getCardDataForm.AddButton("Get .txt", func() {
+		strkey := getCardDataForm.GetFormItemByLabel("Unique key").(*tview.InputField).GetText()
+		intkey, _ := strconv.Atoi(strkey)
+		_, err := a.getService.GetCardData(context.Background(), intkey, a.userSecretPhrase)
+		a.log.Info(err)
+		if err != nil {
+			if errors.Is(err, errors.New("invalid hash key")) {
+				if getCardDataForm.GetButtonIndex("Error Secret Phrase") == -1 {
+					getCardDataForm.AddButton("Error Secret Phrase", nil)
+				}
+			}
+			if getCardDataForm.GetButtonIndex("Error") == -1 {
+				getCardDataForm.AddButton("Error", nil)
+			}
+		}
+	})
+	getCardDataForm.AddButton("Return back", func() {
+		getDataPagesForm := a.getDataPagesForm(app)
+		if err := app.SetRoot(getDataPagesForm, true).EnableMouse(true).Run(); err != nil {
+			applicationErr = fmt.Errorf("app.getCardDataForm.%s", err)
+		}
+	})
+	getCardDataForm.SetBorder(true).SetTitle("Gophkeeper").SetTitleAlign(tview.AlignCenter)
+	return getCardDataForm
 }

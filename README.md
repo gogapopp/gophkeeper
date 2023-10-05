@@ -1,6 +1,9 @@
 # gophkeeper
 
-![project structure](https://imgur.com/diQUmX1)
+TODO: покрытие кода тестами 
+TODO: исправить дешифровку данных 0_0
+
+![project structure](image.png)
 
 in the CardData form the card number is checked by the Luhn algorithm  
 in the BinaryData form you need to enter file path and maximum file size up to 1gb  
@@ -24,6 +27,4 @@ in the BinaryData form you need to enter file path and maximum file size up to 1
 | card_data_id | user_id | unique_key | card_number | card_name | card_date | cvv | uploaded_at | metainfo |
 |--------------|---------|------------|-------------|-----------|-----------|-----|-------------|----------|
 | PRIMARY KEY INT | INT FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE | varchar(128) | BYTEA | BYTEA | BYTEA | BYTEA | TIMESTAMPTZ | BYTEA |
-
-TODO: получение данных по уникальному ключу  
-TODO: покрытие кода тестами  
+ 

@@ -45,12 +45,14 @@ func (g *GRPCClient) AddTextData(ctx context.Context, textData models.TextData, 
 	if err != nil {
 		return err
 	}
+	textData.UploadedAt = timestamppb.New(time.Now())
+	textData.UniqueKey = random.GenerateUniqueKey()
 	request := &pb.TextDataRequest{
 		TextData:   textData.TextData,
 		UserID:     textData.UserID,
 		Metainfo:   textData.Metainfo,
-		UploadedAt: timestamppb.New(time.Now()),
-		UniqueKey:  random.GenerateUniqueKey(),
+		UploadedAt: textData.UploadedAt,
+		UniqueKey:  textData.UniqueKey,
 	}
 	_, err = g.grpcClient.AddTextData(ctx, request)
 	if err != nil {
@@ -68,12 +70,14 @@ func (g *GRPCClient) AddBinaryData(ctx context.Context, binaryData models.Binary
 	if err != nil {
 		return err
 	}
+	binaryData.UploadedAt = timestamppb.New(time.Now())
+	binaryData.UniqueKey = random.GenerateUniqueKey()
 	request := &pb.BinaryDataRequest{
 		BinaryData: binaryData.BinaryData,
 		UserID:     binaryData.UserID,
 		Metainfo:   binaryData.Metainfo,
-		UploadedAt: timestamppb.New(time.Now()),
-		UniqueKey:  random.GenerateUniqueKey(),
+		UploadedAt: binaryData.UploadedAt,
+		UniqueKey:  binaryData.UniqueKey,
 	}
 	_, err = g.grpcClient.AddBinaryData(ctx, request)
 	if err != nil {
@@ -91,6 +95,8 @@ func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, 
 	if err != nil {
 		return err
 	}
+	cardData.UploadedAt = timestamppb.New(time.Now())
+	cardData.UniqueKey = random.GenerateUniqueKey()
 	request := &pb.CardDataRequest{
 		CardNumberData: cardData.CardNumberData,
 		CardNameData:   cardData.CardNameData,
@@ -98,8 +104,8 @@ func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, 
 		CvvData:        cardData.CvvData,
 		UserID:         cardData.UserID,
 		Metainfo:       cardData.Metainfo,
-		UploadedAt:     timestamppb.New(time.Now()),
-		UniqueKey:      random.GenerateUniqueKey(),
+		UploadedAt:     cardData.UploadedAt,
+		UniqueKey:      cardData.UniqueKey,
 	}
 	_, err = g.grpcClient.AddCardData(ctx, request)
 	if err != nil {
@@ -107,6 +113,7 @@ func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, 
 	}
 	err = g.saveService.AddCardData(ctx, cardData)
 	if err != nil {
+		g.log.Info(err)
 		return err
 	}
 	return nil

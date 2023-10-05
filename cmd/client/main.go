@@ -62,7 +62,7 @@ func main() {
 	// 	fmt.Println(err)
 	// }
 	//
-	application := app.NewApplication(grpcclient, log)
+	application := app.NewApplication(grpcclient, getService, log)
 	application.CreateApp()
 	// реализация graceful shutdown
 	sigint := make(chan os.Signal, 1)

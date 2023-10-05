@@ -33,7 +33,7 @@ func (r *Repository) AddBinaryData(ctx context.Context, binarydata models.Binary
 
 func (r *Repository) AddCardData(ctx context.Context, carddata models.CardData) error {
 	const op = "sqlite.store.AddCardData"
-	_, err := r.db.ExecContext(ctx, binaryDataQuery,
+	_, err := r.db.ExecContext(ctx, cardDataQuery,
 		carddata.UserID, carddata.UniqueKey, carddata.CardNumberData, carddata.CardNameData, carddata.CardDateData, carddata.CvvData, carddata.UploadedAt.AsTime(), carddata.Metainfo)
 	if err != nil {
 		return fmt.Errorf("%s: %s", op, err)

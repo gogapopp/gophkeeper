@@ -55,7 +55,7 @@ func Decrypt(cipherText []byte, key []byte) ([]byte, error) {
 
 	hash = sha256.Sum256(cipherText[:len(cipherText)-sha256.Size])
 	if string(hash[:]) != string(cipherText[len(cipherText)-sha256.Size:]) {
-		return nil, fmt.Errorf("invalid hash")
+		return nil, fmt.Errorf("invalid hash key")
 	}
 
 	stream := cipher.NewCFBDecrypter(block, iv)

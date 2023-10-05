@@ -9,9 +9,6 @@ import (
 )
 
 func (gs *grpcServer) SyncData(ctx context.Context, in *pb.SyncRequest) (*pb.SyncResponse, error) {
-	if in == nil {
-		return nil, nil
-	}
 	uninqueKeys := in
 	response, err := gs.get.GetDatas(ctx, uninqueKeys)
 	if err != nil {
