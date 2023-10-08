@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gogapopp/gophkeeper/internal/hasher"
 	"github.com/gogapopp/gophkeeper/models"
 )
 
@@ -38,13 +39,16 @@ func (g *GetService) GetTextData(ctx context.Context, uniqueKey int, userSecretP
 	}
 	defer file.Close()
 	uploadedAt := textdata.UploadedAt.AsTime()
-	// TODO: расшифровку добавить
-	// encryptedTextData, err := hash.Decrypt(textdata.TextData, []byte(userSecretPhrase))
-	// if err != nil {
-	// 	return textdata, err
-	// }
+	encryptedTextData, err := hasher.Decrypt(textdata.TextData, []byte(userSecretPhrase))
+	if err != nil {
+		return textdata, err
+	}
+	encryptedMetainfo, err := hasher.Decrypt(textdata.Metainfo, []byte(userSecretPhrase))
+	if err != nil {
+		return textdata, err
+	}
 	_, err = fmt.Fprintf(file, "UniqueKey: %s\nTextData: %s\nUploadedAt: %s\nMetainfo: %s\n",
-		textdata.UniqueKey, textdata.TextData, uploadedAt, textdata.Metainfo)
+		textdata.UniqueKey, string(encryptedTextData), uploadedAt, string(encryptedMetainfo))
 	if err != nil {
 		return textdata, fmt.Errorf("%s: %s", op, err)
 	}
@@ -57,20 +61,33 @@ func (g *GetService) GetBinaryData(ctx context.Context, uniqueKey int, userSecre
 	if err != nil {
 		return binarydata, fmt.Errorf("%s: %s", op, err)
 	}
-	fileName := fmt.Sprintf("binary_data_%d", uniqueKey)
-	file, err := os.Create(fileName)
+	fileTxtName := fmt.Sprintf("binary_data_%d.txt", uniqueKey)
+	fileTXT, err := os.Create(fileTxtName)
 	if err != nil {
 		return binarydata, fmt.Errorf("%s: %s", op, err)
 	}
-	defer file.Close()
-	err = os.WriteFile(fileName, binarydata.BinaryData, 0644)
+	defer fileTXT.Close()
+	fileBinaryName := fmt.Sprintf("binary_data_%d.exe", uniqueKey)
+	fileEXE, err := os.Create(fileBinaryName)
+	if err != nil {
+		return binarydata, fmt.Errorf("%s: %s", op, err)
+	}
+	defer fileEXE.Close()
+	encryptedBinary, err := hasher.Decrypt(binarydata.BinaryData, []byte(userSecretPhrase))
+	if err != nil {
+		return binarydata, err
+	}
+	err = os.WriteFile(fileBinaryName, encryptedBinary, 0644)
 	if err != nil {
 		return binarydata, fmt.Errorf("%s: %s", op, err)
 	}
 	uploadedAt := binarydata.UploadedAt.AsTime()
-	// TODO: расшифровку добавить
-	_, err = fmt.Fprintf(file, "UniqueKey: %s\nUploadedAt: %s\nMetainfo: %s\n",
-		binarydata.UniqueKey, uploadedAt, binarydata.Metainfo)
+	encryptedMetainfo, err := hasher.Decrypt(binarydata.Metainfo, []byte(userSecretPhrase))
+	if err != nil {
+		return binarydata, err
+	}
+	_, err = fmt.Fprintf(fileTXT, "UniqueKey: %d\nUploadedAt: %s\nMetainfo: %s\n",
+		uniqueKey, uploadedAt, encryptedMetainfo)
 	if err != nil {
 		return binarydata, fmt.Errorf("%s: %s", op, err)
 	}
@@ -90,9 +107,28 @@ func (g *GetService) GetCardData(ctx context.Context, uniqueKey int, userSecretP
 	}
 	defer file.Close()
 	uploadedAt := carddata.UploadedAt.AsTime()
-	// TODO: расшифровку добавить
+	encryptedCardNumber, err := hasher.Decrypt(carddata.CardNumberData, []byte(userSecretPhrase))
+	if err != nil {
+		return carddata, err
+	}
+	encryptedName, err := hasher.Decrypt(carddata.CardNameData, []byte(userSecretPhrase))
+	if err != nil {
+		return carddata, err
+	}
+	encryptedCardDate, err := hasher.Decrypt(carddata.CardDateData, []byte(userSecretPhrase))
+	if err != nil {
+		return carddata, err
+	}
+	encryptedCVV, err := hasher.Decrypt(carddata.CvvData, []byte(userSecretPhrase))
+	if err != nil {
+		return carddata, err
+	}
+	encryptedMetainfo, err := hasher.Decrypt(carddata.Metainfo, []byte(userSecretPhrase))
+	if err != nil {
+		return carddata, err
+	}
 	_, err = fmt.Fprintf(file, "UniqueKey: %s\nCardNumberData: %s\nCardNameData: %s\nCardDateData: %s\nCVVData: %s\nUploadedAt: %s\nMetainfo: %s\n",
-		carddata.UniqueKey, carddata.CardNumberData, carddata.CardNameData, carddata.CardDateData, carddata.CvvData, uploadedAt, carddata.Metainfo)
+		carddata.UniqueKey, encryptedCardNumber, encryptedName, encryptedCardDate, encryptedCVV, uploadedAt, encryptedMetainfo)
 	if err != nil {
 		return carddata, fmt.Errorf("%s: %s", op, err)
 	}

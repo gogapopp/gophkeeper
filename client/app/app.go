@@ -11,6 +11,7 @@ import (
 	"github.com/gogapopp/gophkeeper/client/lib/file"
 	"github.com/gogapopp/gophkeeper/client/lib/luhn"
 	"github.com/gogapopp/gophkeeper/client/service"
+	"github.com/gogapopp/gophkeeper/internal/hasher"
 	"github.com/gogapopp/gophkeeper/internal/jwt"
 	"github.com/gogapopp/gophkeeper/models"
 	"github.com/rivo/tview"
@@ -24,13 +25,17 @@ type Application struct {
 	userID           int
 	grpcClient       *grpc_client.GRPCClient
 	getService       *service.GetService
+	version          string
+	commit           string
 	log              *zap.SugaredLogger
 }
 
-func NewApplication(grpcClient *grpc_client.GRPCClient, getService *service.GetService, log *zap.SugaredLogger) *Application {
+func NewApplication(grpcClient *grpc_client.GRPCClient, getService *service.GetService, version string, commit string, log *zap.SugaredLogger) *Application {
 	return &Application{
 		grpcClient: grpcClient,
 		getService: getService,
+		version:    version,
+		commit:     commit,
 		log:        log,
 	}
 }
@@ -48,22 +53,27 @@ func (a *Application) CreateApp() error {
 func (a *Application) registerForm(app *tview.Application) *tview.Form {
 	registerForm := tview.NewForm()
 	registerForm.
+		AddTextView("VERSION:", a.version, 20, 2, true, true).
+		AddTextView("COMMIT:", a.commit, 20, 2, true, true).
 		AddTextView("REGISTER:", "Registration form", 20, 2, true, true).
 		AddInputField("Login", "", 20, nil, nil).
 		AddPasswordField("Password", "", 10, '*', nil).
+		AddInputField("SecretPhrase", "", 20, nil, nil).
 		AddButton("Submit", func() {
 			login := registerForm.GetFormItemByLabel("Login").(*tview.InputField).GetText()
 			password := registerForm.GetFormItemByLabel("Password").(*tview.InputField).GetText()
+			userPhrase := registerForm.GetFormItemByLabel("SecretPhrase").(*tview.InputField).GetText()
 			user := models.User{
-				Login:    login,
-				Password: password,
+				Login:      login,
+				Password:   password,
+				UserPhrase: userPhrase,
 			}
 			err := a.grpcClient.Register(context.Background(), user)
 			// если поля login и password пустые
-			if login == "" || password == "" {
+			if login == "" || password == "" || userPhrase == "" {
 				// если кнопки нет то добавляем
-				if registerForm.GetButtonIndex("Incorrect login or password") == -1 {
-					registerForm.AddButton("Incorrect login or password", nil)
+				if registerForm.GetButtonIndex("Incorrect login or password or secret phrase") == -1 {
+					registerForm.AddButton("Incorrect login or password or secret phrase", nil)
 				}
 			} else {
 				// проверяем верный ли пароль и логин
@@ -73,8 +83,8 @@ func (a *Application) registerForm(app *tview.Application) *tview.Form {
 						idx := registerForm.GetButtonIndex("User already exists")
 						registerForm.RemoveButton(idx)
 					}
-					if registerForm.GetButtonIndex("Incorrect login or password") != -1 {
-						idx := registerForm.GetButtonIndex("Incorrect login or password")
+					if registerForm.GetButtonIndex("Incorrect login or password or secret phrase") != -1 {
+						idx := registerForm.GetButtonIndex("Incorrect login or password or secret phrase")
 						registerForm.RemoveButton(idx)
 					}
 					// если кнопок нет создаём "User registered"
@@ -86,8 +96,8 @@ func (a *Application) registerForm(app *tview.Application) *tview.Form {
 					if registerForm.GetButtonIndex("User already exists") == -1 {
 						registerForm.AddButton("User already exists", nil)
 					}
-					if registerForm.GetButtonIndex("Incorrect login or password") == -1 {
-						registerForm.AddButton("Incorrect login or password", nil)
+					if registerForm.GetButtonIndex("Incorrect login or password or secret phrase") == -1 {
+						registerForm.AddButton("Incorrect login or password or secret phrase", nil)
 					}
 				}
 			}
@@ -117,14 +127,15 @@ func (a *Application) loginForm(app *tview.Application) *tview.Form {
 		AddButton("Submit", func() {
 			login := loginForm.GetFormItemByLabel("Login").(*tview.InputField).GetText()
 			password := loginForm.GetFormItemByLabel("Password").(*tview.InputField).GetText()
-			a.userSecretPhrase = loginForm.GetFormItemByLabel("SecretPhrase").(*tview.InputField).GetText()
+			secretPhrase := loginForm.GetFormItemByLabel("SecretPhrase").(*tview.InputField).GetText()
 			user := models.User{
-				Login:    login,
-				Password: password,
+				Login:      login,
+				Password:   password,
+				UserPhrase: secretPhrase,
 			}
-			if login == "" || password == "" {
-				if loginForm.GetButtonIndex("Incorrect login or password") == -1 {
-					loginForm.AddButton("Incorrect login or password", nil)
+			if login == "" || password == "" || secretPhrase == "" {
+				if loginForm.GetButtonIndex("Incorrect login or password or secret phrase") == -1 {
+					loginForm.AddButton("Incorrect login or password or secret phrase", nil)
 					return
 				}
 			}
@@ -136,8 +147,9 @@ func (a *Application) loginForm(app *tview.Application) *tview.Form {
 				}
 				a.userID = userID
 			}
+			a.userSecretPhrase = secretPhrase
 			if err == nil {
-				if idx := loginForm.GetButtonIndex("Incorrect login or password"); idx != -1 {
+				if idx := loginForm.GetButtonIndex("Incorrect login or password or secret phrase"); idx != -1 {
 					loginForm.RemoveButton(idx)
 				}
 				if loginForm.GetButtonIndex("Go to Next Page") == -1 {
@@ -149,8 +161,8 @@ func (a *Application) loginForm(app *tview.Application) *tview.Form {
 					})
 				}
 			} else {
-				if loginForm.GetButtonIndex("Incorrect login or password") == -1 {
-					loginForm.AddButton("Incorrect login or password", nil)
+				if loginForm.GetButtonIndex("Incorrect login or password or secret phrase") == -1 {
+					loginForm.AddButton("Incorrect login or password or secret phrase", nil)
 				}
 			}
 		}).
@@ -447,13 +459,15 @@ func (a *Application) getTextDataForm(app *tview.Application) *tview.Form {
 		intkey, _ := strconv.Atoi(strkey)
 		_, err := a.getService.GetTextData(context.Background(), intkey, a.userSecretPhrase)
 		if err != nil {
-			if errors.Is(err, errors.New("invalid hash key")) {
+			if errors.Is(err, hasher.ErrInvalidKey) {
 				if getTextDataForm.GetButtonIndex("Error Secret Phrase") == -1 {
 					getTextDataForm.AddButton("Error Secret Phrase", nil)
+					return
 				}
 			}
 			if getTextDataForm.GetButtonIndex("Error") == -1 {
 				getTextDataForm.AddButton("Error", nil)
+				return
 			}
 		}
 	})
@@ -485,7 +499,6 @@ func (a *Application) getBinaryDataForm(app *tview.Application) *tview.Form {
 		strkey := getBinaryDataForm.GetFormItemByLabel("Unique key").(*tview.InputField).GetText()
 		intkey, _ := strconv.Atoi(strkey)
 		_, err := a.getService.GetBinaryData(context.Background(), intkey, a.userSecretPhrase)
-		a.log.Info(err)
 		if err != nil {
 			if errors.Is(err, errors.New("invalid hash key")) {
 				if getBinaryDataForm.GetButtonIndex("Error Secret Phrase") == -1 {
@@ -512,6 +525,7 @@ func (a *Application) getCardDataForm(app *tview.Application) *tview.Form {
 	getCardDataForm.
 		AddTextView("GET CARD DATA:", "you will get a .txt file with the selected card data", 20, 6, true, true)
 	keys, err := a.getService.GetDatas(context.Background(), "carddata")
+	a.log.Info(err, keys)
 	if err != nil {
 		if getCardDataForm.GetButtonIndex("Error") == -1 {
 			getCardDataForm.AddButton("Error", nil)
@@ -525,7 +539,6 @@ func (a *Application) getCardDataForm(app *tview.Application) *tview.Form {
 		strkey := getCardDataForm.GetFormItemByLabel("Unique key").(*tview.InputField).GetText()
 		intkey, _ := strconv.Atoi(strkey)
 		_, err := a.getService.GetCardData(context.Background(), intkey, a.userSecretPhrase)
-		a.log.Info(err)
 		if err != nil {
 			if errors.Is(err, errors.New("invalid hash key")) {
 				if getCardDataForm.GetButtonIndex("Error Secret Phrase") == -1 {

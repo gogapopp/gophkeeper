@@ -11,6 +11,7 @@ type (
 	User struct {
 		Login      string
 		Password   string
+		UserPhrase string
 		UploadedAt time.Time
 	}
 

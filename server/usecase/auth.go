@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gogapopp/gophkeeper/internal/hash"
+	"github.com/gogapopp/gophkeeper/internal/hasher"
 	"github.com/gogapopp/gophkeeper/internal/jwt"
 	"github.com/gogapopp/gophkeeper/models"
 )
@@ -18,7 +18,8 @@ type Auth interface {
 
 func (au *AuthUsecase) Register(ctx context.Context, user models.User) error {
 	const op = "usecase.auth.Register"
-	user.Password = hash.GeneratePasswordHash(user.Password)
+	user.Password = hasher.GenerateHash(user.Password)
+	user.UserPhrase = hasher.GenerateHash(user.UserPhrase)
 	err := au.auth.Register(ctx, user)
 	if err != nil {
 		return fmt.Errorf("%s: %s", op, err)
@@ -28,7 +29,8 @@ func (au *AuthUsecase) Register(ctx context.Context, user models.User) error {
 
 func (au *AuthUsecase) Login(ctx context.Context, user models.User) (string, error) {
 	const op = "usecase.auth.Login"
-	user.Password = hash.GeneratePasswordHash(user.Password)
+	user.Password = hasher.GenerateHash(user.Password)
+	user.UserPhrase = hasher.GenerateHash(user.UserPhrase)
 	user.UploadedAt = time.Now()
 	userIDstr, err := au.auth.Login(ctx, user)
 	if err != nil {

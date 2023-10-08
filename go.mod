@@ -5,6 +5,7 @@ go 1.21.1
 require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/jackc/pgconn v1.14.1
+	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/spf13/viper v1.16.0

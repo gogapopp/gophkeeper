@@ -15,8 +15,9 @@ import (
 func (gs *grpcServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	var response pb.RegisterResponse
 	user := models.User{
-		Login:    in.Login,
-		Password: in.Password,
+		Login:      in.Login,
+		Password:   in.Password,
+		UserPhrase: in.UserPhrase,
 	}
 	err := gs.auth.Register(ctx, user)
 	if err != nil {
@@ -33,8 +34,9 @@ func (gs *grpcServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb
 func (gs *grpcServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
 	var response pb.LoginResponse
 	user := models.User{
-		Login:    in.Login,
-		Password: in.Password,
+		Login:      in.Login,
+		Password:   in.Password,
+		UserPhrase: in.UserPhrase,
 	}
 	token, err := gs.auth.Login(ctx, user)
 	if err != nil {

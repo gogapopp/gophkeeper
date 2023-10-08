@@ -15,6 +15,11 @@ import (
 	"github.com/gogapopp/gophkeeper/internal/logger"
 )
 
+var (
+	Version string
+	Commit  string
+)
+
 func main() {
 	config, err := config.LoadConfig()
 	fatal(err)
@@ -36,33 +41,7 @@ func main() {
 	defer conn.Close()
 	grpcclient, err := grpc_client.NewGRPCClient(conn, hashService, saveService, getService, log)
 	fatal(err)
-	//
-	// _ = grpcclient
-	// uniqueKeys, err := getService.GetUniqueKeys(context.Background(), 1)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println(uniqueKeys)
-	// uniqueKeysProto := make(map[string]*pb.RepeatedUniqueKeys)
-	// for key, values := range uniqueKeys {
-	// 	uniqueKeysProto[key] = &pb.RepeatedUniqueKeys{Values: values}
-	// }
-	// request := &pb.SyncRequest{
-	// 	Keys: uniqueKeysProto,
-	// }
-	// newclient := pb.NewMultiServiceClient(conn)
-	// fmt.Println(request)
-	// response, err := newclient.SyncData(context.Background(), request)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println(response, "123123123123123")
-	// err = saveService.SaveDatas(context.Background(), response)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	//
-	application := app.NewApplication(grpcclient, getService, log)
+	application := app.NewApplication(grpcclient, getService, Version, Commit, log)
 	application.CreateApp()
 	// реализация graceful shutdown
 	sigint := make(chan os.Signal, 1)

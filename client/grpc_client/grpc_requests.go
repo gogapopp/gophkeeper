@@ -18,8 +18,9 @@ type Hasher interface {
 
 func (g *GRPCClient) Register(ctx context.Context, user models.User) error {
 	request := &pb.RegisterRequest{
-		Login:    user.Login,
-		Password: user.Password,
+		Login:      user.Login,
+		Password:   user.Password,
+		UserPhrase: user.UserPhrase,
 	}
 	_, err := g.grpcClient.Register(ctx, request)
 	if err != nil {
@@ -30,8 +31,9 @@ func (g *GRPCClient) Register(ctx context.Context, user models.User) error {
 
 func (g *GRPCClient) Login(ctx context.Context, user models.User) (*pb.LoginResponse, error) {
 	request := &pb.LoginRequest{
-		Login:    user.Login,
-		Password: user.Password,
+		Login:      user.Login,
+		Password:   user.Password,
+		UserPhrase: user.UserPhrase,
 	}
 	response, err := g.grpcClient.Login(ctx, request)
 	if err != nil {

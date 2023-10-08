@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -13,7 +14,14 @@ import (
 	"github.com/gogapopp/gophkeeper/server/usecase"
 )
 
+var (
+	Version string
+	Commit  string
+)
+
 func main() {
+	fmt.Println("Version: ", Version)
+	fmt.Println("Commit: ", Commit)
 	config, err := config.LoadConfig()
 	fatal(err)
 	log, err := logger.SetupLogger()

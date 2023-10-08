@@ -1,16 +1,16 @@
 package service
 
 import (
-	"github.com/gogapopp/gophkeeper/internal/hash"
+	"github.com/gogapopp/gophkeeper/internal/hasher"
 	"github.com/gogapopp/gophkeeper/models"
 )
 
 func (h *HashService) HashTextData(textdata models.TextData, userSecretPhrase string) (models.TextData, error) {
-	hashText, err := hash.Encrypt([]byte(textdata.TextData), []byte(userSecretPhrase))
+	hashText, err := hasher.Encrypt([]byte(textdata.TextData), []byte(userSecretPhrase))
 	if err != nil {
 		return models.TextData{}, err
 	}
-	hashMetainfo, err := hash.Encrypt([]byte(textdata.Metainfo), []byte(userSecretPhrase))
+	hashMetainfo, err := hasher.Encrypt([]byte(textdata.Metainfo), []byte(userSecretPhrase))
 	if err != nil {
 		return models.TextData{}, err
 	}
@@ -23,11 +23,11 @@ func (h *HashService) HashTextData(textdata models.TextData, userSecretPhrase st
 }
 
 func (h *HashService) HashBinaryData(binarydata models.BinaryData, userSecretPhrase string) (models.BinaryData, error) {
-	hashBinary, err := hash.Encrypt([]byte(binarydata.BinaryData), []byte(userSecretPhrase))
+	hashBinary, err := hasher.Encrypt([]byte(binarydata.BinaryData), []byte(userSecretPhrase))
 	if err != nil {
 		return models.BinaryData{}, err
 	}
-	hashMetainfo, err := hash.Encrypt([]byte(binarydata.Metainfo), []byte(userSecretPhrase))
+	hashMetainfo, err := hasher.Encrypt([]byte(binarydata.Metainfo), []byte(userSecretPhrase))
 	if err != nil {
 		return models.BinaryData{}, err
 	}
@@ -39,23 +39,23 @@ func (h *HashService) HashBinaryData(binarydata models.BinaryData, userSecretPhr
 	return hashBinaryData, nil
 }
 func (h *HashService) HashCardData(carddata models.CardData, userSecretPhrase string) (models.CardData, error) {
-	hashCardNumber, err := hash.Encrypt([]byte(carddata.CardNumberData), []byte(userSecretPhrase))
+	hashCardNumber, err := hasher.Encrypt([]byte(carddata.CardNumberData), []byte(userSecretPhrase))
 	if err != nil {
 		return models.CardData{}, err
 	}
-	hashCardName, err := hash.Encrypt([]byte(carddata.CardNameData), []byte(userSecretPhrase))
+	hashCardName, err := hasher.Encrypt([]byte(carddata.CardNameData), []byte(userSecretPhrase))
 	if err != nil {
 		return models.CardData{}, err
 	}
-	hashCardDate, err := hash.Encrypt([]byte(carddata.CardDateData), []byte(userSecretPhrase))
+	hashCardDate, err := hasher.Encrypt([]byte(carddata.CardDateData), []byte(userSecretPhrase))
 	if err != nil {
 		return models.CardData{}, err
 	}
-	hashCardCVV, err := hash.Encrypt([]byte(carddata.CvvData), []byte(userSecretPhrase))
+	hashCardCVV, err := hasher.Encrypt([]byte(carddata.CvvData), []byte(userSecretPhrase))
 	if err != nil {
 		return models.CardData{}, err
 	}
-	hashMetainfo, err := hash.Encrypt([]byte(carddata.Metainfo), []byte(userSecretPhrase))
+	hashMetainfo, err := hasher.Encrypt([]byte(carddata.Metainfo), []byte(userSecretPhrase))
 	if err != nil {
 		return models.CardData{}, err
 	}

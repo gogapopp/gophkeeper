@@ -40,6 +40,6 @@ func ParseToken(tokenString string) (int, error) {
 	if claims, ok := token.Claims.(*JwtClaims); ok && token.Valid {
 		return claims.UserID, nil
 	} else {
-		return 0, errors.New("Invalid token")
+		return 0, errors.New("invalid token")
 	}
 }

@@ -10,6 +10,7 @@ option go_package = "internal/proto";
 message RegisterRequest {
     string login = 1;
     string password = 2;
+    string userPhrase = 3;
 }
 
 message RegisterResponse {
@@ -19,6 +20,7 @@ message RegisterResponse {
 message LoginRequest {
     string login = 1;
     string password = 2;
+    string userPhrase = 3;
 }
 
 message LoginResponse {
