@@ -47,17 +47,20 @@ func (r *Repository) SaveDatas(ctx context.Context, syncdata models.SyncData) er
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if errRollback := tx.Rollback(); err != nil {
+			err = errRollback
+		}
+	}()
 	for _, textdata := range syncdata.TextData {
 		_, err := tx.ExecContext(ctx, textDataQuery, textdata.UserID, textdata.UniqueKey, textdata.TextData, textdata.UploadedAt.AsTime(), textdata.Metainfo)
 		if err != nil {
-			tx.Rollback()
 			return fmt.Errorf("%s: %s", op, err)
 		}
 	}
 	for _, binarydata := range syncdata.BinaryData {
 		_, err := tx.ExecContext(ctx, binaryDataQuery, binarydata.UserID, binarydata.UniqueKey, binarydata.BinaryData, binarydata.UploadedAt.AsTime(), binarydata.Metainfo)
 		if err != nil {
-			tx.Rollback()
 			return fmt.Errorf("%s: %s", op, err)
 		}
 	}
@@ -65,7 +68,6 @@ func (r *Repository) SaveDatas(ctx context.Context, syncdata models.SyncData) er
 		_, err := tx.ExecContext(ctx, binaryDataQuery,
 			carddata.UserID, carddata.UniqueKey, carddata.CardNumberData, carddata.CardNameData, carddata.CardDateData, carddata.CvvData, carddata.UploadedAt.AsTime(), carddata.Metainfo)
 		if err != nil {
-			tx.Rollback()
 			return fmt.Errorf("%s: %s", op, err)
 		}
 	}

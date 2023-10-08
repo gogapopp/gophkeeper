@@ -1,7 +1,6 @@
 # gophkeeper
 
 TODO: покрытие кода тестами  
-TODO: исправить дешифровку данных 0_0  
 
 ![project structure](image.png)
 

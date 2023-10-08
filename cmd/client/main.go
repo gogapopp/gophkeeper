@@ -42,7 +42,8 @@ func main() {
 	grpcclient, err := grpc_client.NewGRPCClient(conn, hashService, saveService, getService, log)
 	fatal(err)
 	application := app.NewApplication(grpcclient, getService, Version, Commit, log)
-	application.CreateApp()
+	err = application.CreateApp()
+	fatal(err)
 	// реализация graceful shutdown
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
