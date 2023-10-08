@@ -27,6 +27,7 @@ func createKeyHash(key []byte) []byte {
 	return hasher.Sum(nil)
 }
 
+// Encrypt шифрует данные пользователя
 func Encrypt(plainText []byte, key []byte) ([]byte, error) {
 	hashedKey := createKeyHash(key)
 	block, err := aes.NewCipher(hashedKey)
@@ -46,6 +47,7 @@ func Encrypt(plainText []byte, key []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
+// Decrypt дешифрует данные пользователя
 func Decrypt(cipherText []byte, key []byte) ([]byte, error) {
 	hashedKey := createKeyHash(key)
 	block, err := aes.NewCipher(hashedKey)

@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// GenerateUniqueKey генерирует уникальным ключ состоящий из 8 цифр
 func GenerateUniqueKey() string {
 	const size = 8
 	b := make([]byte, size)

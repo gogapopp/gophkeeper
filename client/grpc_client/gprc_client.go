@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// структура grpc клиента
 type GRPCClient struct {
 	grpcClient  pb.MultiServiceClient
 	hashService *service.HashService
@@ -18,6 +19,7 @@ type GRPCClient struct {
 	log         *zap.SugaredLogger
 }
 
+// ConnectGRPC пытается установить соединение с grpc сервером
 func ConnectGRPC(config *viper.Viper) (*grpc.ClientConn, error) {
 	// устанавливаем соединение с сервером
 	conn, err := grpc.Dial(config.GetString("grpc_client.address"), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*1024)))
@@ -27,6 +29,7 @@ func ConnectGRPC(config *viper.Viper) (*grpc.ClientConn, error) {
 	return conn, nil
 }
 
+// NewGRPCClient получаем клиент grpc сервера
 func NewGRPCClient(conn *grpc.ClientConn, hashService *service.HashService, saveService *service.SaveService, getService *service.GetService, log *zap.SugaredLogger) (*GRPCClient, error) {
 	newclient := pb.NewMultiServiceClient(conn)
 	return &GRPCClient{

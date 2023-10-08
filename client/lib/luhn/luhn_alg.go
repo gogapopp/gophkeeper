@@ -1,5 +1,6 @@
 package luhn
 
+// CheckLuhn проверяет номер карты на соответствие алгоритму Луна
 func CheckLuhn(cardNumber string) bool {
 	var sum int
 	var alt bool

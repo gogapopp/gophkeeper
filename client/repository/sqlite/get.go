@@ -9,9 +9,10 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// TODO:
+// шаблон для парсинга даты
 const layout = "2006-01-02 15:04:05.999999-07:00"
 
+// GetUniqueKeys получает все уникальные ключи ключи пользователя для каждого типа данных
 func (r *Repository) GetUniqueKeys(ctx context.Context, userID int) (map[string][]string, error) {
 	const op = "sqlite.get.GetUniqueKeys"
 	tables := []string{"textdata", "binarydata", "carddata"}
@@ -38,6 +39,7 @@ func (r *Repository) GetUniqueKeys(ctx context.Context, userID int) (map[string]
 	return keys, nil
 }
 
+// GetTextData получает текстовые данные пользователя по уникальному ключу
 func (r *Repository) GetTextData(ctx context.Context, uniqueKey int) (models.TextData, error) {
 	const op = "sqlite.get.GetTextData"
 	const query = "SELECT unique_key, text_data, uploaded_at, metainfo FROM textdata WHERE unique_key=?1"
@@ -62,6 +64,7 @@ func (r *Repository) GetTextData(ctx context.Context, uniqueKey int) (models.Tex
 	return textdata, nil
 }
 
+// GetBinaryData получает бинарные данные пользователя по уникальному ключу
 func (r *Repository) GetBinaryData(ctx context.Context, uniqueKey int) (models.BinaryData, error) {
 	const op = "sqlite.get.GetBinaryData"
 	const query = "SELECT binary_data, metainfo, uploaded_at FROM binarydata WHERE unique_key=?1"
@@ -86,6 +89,7 @@ func (r *Repository) GetBinaryData(ctx context.Context, uniqueKey int) (models.B
 	return binarydata, nil
 }
 
+// GetCardData получает данные карты пользователя по уникальному ключу
 func (r *Repository) GetCardData(ctx context.Context, uniqueKey int) (models.CardData, error) {
 	const op = "sqlite.get.GetCardData"
 	const query = "SELECT unique_key, card_number, card_name, card_date, cvv, uploaded_at, metainfo FROM carddata WHERE unique_key=?1"
@@ -110,6 +114,7 @@ func (r *Repository) GetCardData(ctx context.Context, uniqueKey int) (models.Car
 	return carddata, nil
 }
 
+// GetDatas получает список уникальных ключей и даты сохранения каждой строки определёного типа данных
 func (r *Repository) GetDatas(ctx context.Context, table string) (map[int]string, error) {
 	const op = "sqlite.get.GetDatas"
 	query := fmt.Sprintf("SELECT unique_key, uploaded_at FROM %s", table)

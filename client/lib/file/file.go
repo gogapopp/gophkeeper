@@ -2,6 +2,7 @@ package file
 
 import "os"
 
+// ReadFile записываем бинарный файл в переменную
 func ReadFile(filePath string) ([]byte, error) {
 	// Чтение файла в массив байтов
 	data, err := os.ReadFile(filePath)
@@ -9,12 +10,4 @@ func ReadFile(filePath string) ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
-}
-
-func WriteFile(fileName string, data []byte) error {
-	err := os.WriteFile(fileName, data, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
 }

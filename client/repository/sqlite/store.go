@@ -13,6 +13,7 @@ const (
 	cardDataQuery   = "INSERT INTO carddata (user_id, unique_key, card_number, card_name, card_date, cvv, uploaded_at, metainfo) values (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)"
 )
 
+// AddTextData сохраняет текстовые данные пользователя
 func (r *Repository) AddTextData(ctx context.Context, textdata models.TextData) error {
 	const op = "sqlite.store.AddTextData"
 	_, err := r.db.ExecContext(ctx, textDataQuery, textdata.UserID, textdata.UniqueKey, textdata.TextData, textdata.UploadedAt.AsTime(), textdata.Metainfo)
@@ -22,6 +23,7 @@ func (r *Repository) AddTextData(ctx context.Context, textdata models.TextData) 
 	return nil
 }
 
+// AddBinaryData сохраняет бинарные данные пользователя
 func (r *Repository) AddBinaryData(ctx context.Context, binarydata models.BinaryData) error {
 	const op = "sqlite.store.AddBinaryData"
 	_, err := r.db.ExecContext(ctx, binaryDataQuery, binarydata.UserID, binarydata.UniqueKey, binarydata.BinaryData, binarydata.UploadedAt.AsTime(), binarydata.Metainfo)
@@ -31,6 +33,7 @@ func (r *Repository) AddBinaryData(ctx context.Context, binarydata models.Binary
 	return nil
 }
 
+// AddCardData сохраняет данные карты пользователя
 func (r *Repository) AddCardData(ctx context.Context, carddata models.CardData) error {
 	const op = "sqlite.store.AddCardData"
 	_, err := r.db.ExecContext(ctx, cardDataQuery,
@@ -41,6 +44,7 @@ func (r *Repository) AddCardData(ctx context.Context, carddata models.CardData) 
 	return nil
 }
 
+// SaveDatas получает на вход структуру массивов структур данных и сохраняет их в БД
 func (r *Repository) SaveDatas(ctx context.Context, syncdata models.SyncData) error {
 	const op = "sqlite.store.SyncData"
 	tx, err := r.db.BeginTx(ctx, nil)

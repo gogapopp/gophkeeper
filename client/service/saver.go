@@ -9,6 +9,7 @@ import (
 	"github.com/gogapopp/gophkeeper/models"
 )
 
+// интерфейс взаимодействия с БД для сохранения файлов
 type Storager interface {
 	AddTextData(ctx context.Context, textdata models.TextData) error
 	AddBinaryData(ctx context.Context, binarydata models.BinaryData) error
@@ -16,6 +17,7 @@ type Storager interface {
 	SaveDatas(ctx context.Context, syncdata models.SyncData) error
 }
 
+// AddTextData возвращает текстовые данные
 func (s *SaveService) AddTextData(ctx context.Context, textdata models.TextData) error {
 	const op = "service.saver.AddTextData"
 	err := s.store.AddTextData(ctx, textdata)
@@ -25,6 +27,7 @@ func (s *SaveService) AddTextData(ctx context.Context, textdata models.TextData)
 	return nil
 }
 
+// AddBinaryData возвращает бинарные данные
 func (s *SaveService) AddBinaryData(ctx context.Context, binarydata models.BinaryData) error {
 	const op = "service.saver.AddBinaryData"
 	err := s.store.AddBinaryData(ctx, binarydata)
@@ -34,6 +37,7 @@ func (s *SaveService) AddBinaryData(ctx context.Context, binarydata models.Binar
 	return nil
 }
 
+// AddCardData возвращает данные карты
 func (s *SaveService) AddCardData(ctx context.Context, carddata models.CardData) error {
 	const op = "service.saver.AddCardData"
 	err := s.store.AddCardData(ctx, carddata)
@@ -43,6 +47,7 @@ func (s *SaveService) AddCardData(ctx context.Context, carddata models.CardData)
 	return nil
 }
 
+// SaveDatas получаем данные из запроса в модели данных для сохранения в БД
 func (s *SaveService) SaveDatas(ctx context.Context, syncdata *pb.SyncResponse) error {
 	const op = "service.saver.SyncData"
 	if syncdata == nil {

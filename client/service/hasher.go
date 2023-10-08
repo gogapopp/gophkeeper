@@ -5,6 +5,7 @@ import (
 	"github.com/gogapopp/gophkeeper/models"
 )
 
+// HashTextData хеширует текстовые данные пользователя
 func (h *HashService) HashTextData(textdata models.TextData, userSecretPhrase string) (models.TextData, error) {
 	hashText, err := hasher.Encrypt([]byte(textdata.TextData), []byte(userSecretPhrase))
 	if err != nil {
@@ -22,6 +23,7 @@ func (h *HashService) HashTextData(textdata models.TextData, userSecretPhrase st
 	return hashTextData, nil
 }
 
+// HashBinaryData хеширует бинарные данные пользователя
 func (h *HashService) HashBinaryData(binarydata models.BinaryData, userSecretPhrase string) (models.BinaryData, error) {
 	hashBinary, err := hasher.Encrypt([]byte(binarydata.BinaryData), []byte(userSecretPhrase))
 	if err != nil {
@@ -38,6 +40,8 @@ func (h *HashService) HashBinaryData(binarydata models.BinaryData, userSecretPhr
 	}
 	return hashBinaryData, nil
 }
+
+// HashCardData хеширует данные карты пользователя
 func (h *HashService) HashCardData(carddata models.CardData, userSecretPhrase string) (models.CardData, error) {
 	hashCardNumber, err := hasher.Encrypt([]byte(carddata.CardNumberData), []byte(userSecretPhrase))
 	if err != nil {

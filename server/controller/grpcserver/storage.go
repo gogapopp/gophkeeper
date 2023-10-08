@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// AddTextData сохраняет текстовые данные пользователя на сервере
 func (gs *grpcServer) AddTextData(ctx context.Context, in *pb.TextDataRequest) (*pb.Empty, error) {
 	var response pb.Empty
 	textdata := models.TextData{
@@ -26,6 +27,7 @@ func (gs *grpcServer) AddTextData(ctx context.Context, in *pb.TextDataRequest) (
 	return &response, nil
 }
 
+// AddBinaryData сохраняет бинарные данные пользователя на сервере
 func (gs *grpcServer) AddBinaryData(ctx context.Context, in *pb.BinaryDataRequest) (*pb.Empty, error) {
 	var response pb.Empty
 	binarydata := models.BinaryData{
@@ -43,6 +45,7 @@ func (gs *grpcServer) AddBinaryData(ctx context.Context, in *pb.BinaryDataReques
 	return &response, nil
 }
 
+// AddCardData сохраняет данные карты пользователя на сервере
 func (gs *grpcServer) AddCardData(ctx context.Context, in *pb.CardDataRequest) (*pb.Empty, error) {
 	var response pb.Empty
 	carddata := models.CardData{

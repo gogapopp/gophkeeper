@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Register обрабатывает и получает запрос на регистрацию пользователя
 func (gs *grpcServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	var response pb.RegisterResponse
 	user := models.User{
@@ -31,6 +32,7 @@ func (gs *grpcServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb
 	return &response, nil
 }
 
+// Login получает и обрабатывает запрос на логин
 func (gs *grpcServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
 	var response pb.LoginResponse
 	user := models.User{

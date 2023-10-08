@@ -10,12 +10,14 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// Hasher хеширует данные по секретному ключу
 type Hasher interface {
 	HashTextData(textdata models.TextData, userSecretPhrase string) (models.TextData, error)
 	HashBinaryData(binarydata models.BinaryData, userSecretPhrase string) (models.BinaryData, error)
 	HashCardData(carddata models.CardData, userSecretPhrase string) (models.CardData, error)
 }
 
+// Register отправляет запрос на регистрацию пользователя
 func (g *GRPCClient) Register(ctx context.Context, user models.User) error {
 	request := &pb.RegisterRequest{
 		Login:      user.Login,
@@ -29,6 +31,7 @@ func (g *GRPCClient) Register(ctx context.Context, user models.User) error {
 	return nil
 }
 
+// Login  отправляет запрос на логин пользователя
 func (g *GRPCClient) Login(ctx context.Context, user models.User) (*pb.LoginResponse, error) {
 	request := &pb.LoginRequest{
 		Login:      user.Login,
@@ -42,6 +45,7 @@ func (g *GRPCClient) Login(ctx context.Context, user models.User) (*pb.LoginResp
 	return response, nil
 }
 
+// AddTextData отправляет запрос на сохранение текстовых данных на сервере
 func (g *GRPCClient) AddTextData(ctx context.Context, textData models.TextData, userSecretPhrase string) error {
 	textData, err := g.hashService.HashTextData(textData, userSecretPhrase)
 	if err != nil {
@@ -67,6 +71,7 @@ func (g *GRPCClient) AddTextData(ctx context.Context, textData models.TextData, 
 	return nil
 }
 
+// AddBinaryData отправляет запрос на сохранение бинарных данных на сервере
 func (g *GRPCClient) AddBinaryData(ctx context.Context, binaryData models.BinaryData, userSecretPhrase string) error {
 	binaryData, err := g.hashService.HashBinaryData(binaryData, userSecretPhrase)
 	if err != nil {
@@ -92,6 +97,7 @@ func (g *GRPCClient) AddBinaryData(ctx context.Context, binaryData models.Binary
 	return nil
 }
 
+// AddCardData отправляет запрос на сохранение данных карты на сервер
 func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, userSecretPhrase string) error {
 	cardData, err := g.hashService.HashCardData(cardData, userSecretPhrase)
 	if err != nil {
@@ -121,10 +127,10 @@ func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, 
 	return nil
 }
 
+// SyncData отправляет запрос на синхронизацию данных между клиентом и сервером по уникальным ключам пользователя
 func (g *GRPCClient) SyncData(ctx context.Context, userID int) error {
 	uniqueKeys, err := g.getService.GetUniqueKeys(ctx, userID)
 	if err != nil {
-		g.log.Info(err)
 		return err
 	}
 	uniqueKeysProto := make(map[string]*pb.RepeatedUniqueKeys)

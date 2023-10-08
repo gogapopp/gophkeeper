@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// warning: желательно задавать значение через env
 const signingKEY = "secret_jwt_sign_key"
 
 type JwtClaims struct {
@@ -15,6 +16,7 @@ type JwtClaims struct {
 	jwt.RegisteredClaims
 }
 
+// GenerateToken создаёт jwt токен с userID
 func GenerateToken(userID int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &JwtClaims{
 		UserID: userID,
@@ -25,6 +27,7 @@ func GenerateToken(userID int) (string, error) {
 	return token.SignedString([]byte(signingKEY))
 }
 
+// ParseToken парсит jwt токен
 func ParseToken(tokenString string) (int, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &JwtClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

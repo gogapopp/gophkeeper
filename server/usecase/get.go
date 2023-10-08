@@ -7,10 +7,12 @@ import (
 	pb "github.com/gogapopp/gophkeeper/proto"
 )
 
+// Getter описывает взаимодействие с БД для получения данных
 type Getter interface {
 	GetDatas(uniqueKeys map[string][]string) (models.SyncData, error)
 }
 
+// GetDatas "собирает" ответ для пользователя со всеми типами данных которые у него отсутсвовали
 func (g *GetUsecase) GetDatas(ctx context.Context, in *pb.SyncRequest) (*pb.SyncResponse, error) {
 	uniqueKeys := make(map[string][]string)
 	for k, v := range in.Keys {

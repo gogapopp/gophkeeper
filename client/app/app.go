@@ -1,3 +1,6 @@
+// package app создаёт отображаемые формы в приложении клиента
+// формы могут получать через поля ввода данные от пользователя
+// также формы сохранения сразу отправляют данные на сервер
 package app
 
 import (
@@ -20,6 +23,7 @@ import (
 
 var applicationErr error
 
+// структура приложения клиента
 type Application struct {
 	userSecretPhrase string
 	userID           int
@@ -30,6 +34,7 @@ type Application struct {
 	log              *zap.SugaredLogger
 }
 
+// NewApplication возращает экземпляр структуры приложения
 func NewApplication(grpcClient *grpc_client.GRPCClient, getService *service.GetService, version string, commit string, log *zap.SugaredLogger) *Application {
 	return &Application{
 		grpcClient: grpcClient,
@@ -40,6 +45,7 @@ func NewApplication(grpcClient *grpc_client.GRPCClient, getService *service.GetS
 	}
 }
 
+// CreateApp создаёт экземляр TUI приложения клиента
 func (a *Application) CreateApp() error {
 	app := tview.NewApplication()
 	registerForm := a.registerForm(app)
@@ -50,6 +56,7 @@ func (a *Application) CreateApp() error {
 	return applicationErr
 }
 
+// registerForm отображает форму регистрации
 func (a *Application) registerForm(app *tview.Application) *tview.Form {
 	registerForm := tview.NewForm()
 	registerForm.
@@ -69,7 +76,7 @@ func (a *Application) registerForm(app *tview.Application) *tview.Form {
 				UserPhrase: userPhrase,
 			}
 			err := a.grpcClient.Register(context.Background(), user)
-			// если поля login и password пустые
+			// если поля login и password и userPhrase пустые
 			if login == "" || password == "" || userPhrase == "" {
 				// если кнопки нет то добавляем
 				if registerForm.GetButtonIndex("Incorrect login or password or secret phrase") == -1 {
@@ -78,7 +85,7 @@ func (a *Application) registerForm(app *tview.Application) *tview.Form {
 			} else {
 				// проверяем верный ли пароль и логин
 				if err == nil {
-					// проверяем кнопки "User already exists" и "Incorrect login or password" если есть меняем название
+					// проверяем кнопки "User already exists" и "Incorrect login or password or secret phrase" если есть меняем название
 					if registerForm.GetButtonIndex("User already exists") != -1 {
 						idx := registerForm.GetButtonIndex("User already exists")
 						registerForm.RemoveButton(idx)
@@ -117,6 +124,7 @@ func (a *Application) registerForm(app *tview.Application) *tview.Form {
 	return registerForm
 }
 
+// loginForm отображает форму логина
 func (a *Application) loginForm(app *tview.Application) *tview.Form {
 	loginForm := tview.NewForm()
 	loginForm.
@@ -133,12 +141,14 @@ func (a *Application) loginForm(app *tview.Application) *tview.Form {
 				Password:   password,
 				UserPhrase: secretPhrase,
 			}
+			// проверяем чтоб поля не были пустыми
 			if login == "" || password == "" || secretPhrase == "" {
 				if loginForm.GetButtonIndex("Incorrect login or password or secret phrase") == -1 {
 					loginForm.AddButton("Incorrect login or password or secret phrase", nil)
 					return
 				}
 			}
+			// отправляем запрос на логин
 			response, err := a.grpcClient.Login(context.Background(), user)
 			if err == nil {
 				userID, err := jwt.ParseToken(*response.Jwt)
@@ -179,6 +189,7 @@ func (a *Application) loginForm(app *tview.Application) *tview.Form {
 	return loginForm
 }
 
+// dataPagesForm отображает основную форму приложения с сохранением, получением и синхронизацией данных
 func (a *Application) dataPagesForm(app *tview.Application) *tview.Form {
 	dataPagesForm := tview.NewForm()
 	dataPagesForm.

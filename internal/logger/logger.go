@@ -12,6 +12,7 @@ var (
 	logger    *zap.SugaredLogger
 )
 
+// SetupLogger устанавливает логгер
 func SetupLogger() (*zap.SugaredLogger, error) {
 	once.Do(func() {
 		log, err := zap.NewProduction()

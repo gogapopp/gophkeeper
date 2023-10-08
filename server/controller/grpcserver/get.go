@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// SyncData получает запрос вида уникальные ключи данных пользователя и возвращает отсутсвующие данные
 func (gs *grpcServer) SyncData(ctx context.Context, in *pb.SyncRequest) (*pb.SyncResponse, error) {
 	uninqueKeys := in
 	response, err := gs.get.GetDatas(ctx, uninqueKeys)

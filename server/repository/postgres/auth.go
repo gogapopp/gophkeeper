@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgerrcode"
 )
 
+// Register сохраняем данные пользователя
 func (r *Repository) Register(ctx context.Context, user models.User) error {
 	const op = "postgres.auth.Register"
 	_, err := r.db.ExecContext(ctx, "INSERT INTO users (login, password, user_phrase, last_update_at) values ($1, $2, $3, $4)", user.Login, user.Password, user.UserPhrase, user.UploadedAt)
@@ -29,6 +30,7 @@ func (r *Repository) Register(ctx context.Context, user models.User) error {
 	return nil
 }
 
+// Login получает айди пользователя по паролю и логину
 func (r *Repository) Login(ctx context.Context, user models.User) (string, error) {
 	const op = "postgres.auth.Login"
 	var userID int

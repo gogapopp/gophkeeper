@@ -1,12 +1,16 @@
 # gophkeeper
+Gophkeeper: this is a storage application for your data with server storage that can be synchronized with two different clients in the same user "account" (all data in storages is encrypted)  
+
+how to setup:  
+download the source code and write the "make" command in the console  
 
 TODO: покрытие кода тестами  
 
-![project structure](image.png)
+WARNING: buttons can be activated twice in one click (this is a tview bug i think)  
+In the CardData form the card number is checked by the Luhn algorithm  
+In the BinaryData form you need to enter file path and maximum file size up to 1gb  
 
-WARNING: buttons can be activated twice in one click (this is a tview bug i think)
-in the CardData form the card number is checked by the Luhn algorithm  
-in the BinaryData form you need to enter file path and maximum file size up to 1gb  
+![project structure](image.png)
 
 **users**                       
 | user_id | login | password | user_phrase | last_update_at | metainfo |

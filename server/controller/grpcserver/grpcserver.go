@@ -18,6 +18,7 @@ type grpcServer struct {
 	log   *zap.SugaredLogger
 }
 
+// NewGRPCServer создаём grpc сервер
 func NewGRPCServer(log *zap.SugaredLogger, auth *usecase.AuthUsecase, store *usecase.StorageUsecase, get *usecase.GetUsecase, config *viper.Viper) *grpc.Server {
 	// получаем сертификат из директории cert
 	// creds, err := credentials.NewServerTLSFromFile("../../cert/server.crt", "../../cert/server.key")
@@ -37,7 +38,7 @@ func NewGRPCServer(log *zap.SugaredLogger, auth *usecase.AuthUsecase, store *use
 	return grpcserver
 }
 
-// RunGRPCServer запускает grpc
+// RunGRPCServer запускает grpc сервер
 func RunGRPCServer(auth *usecase.AuthUsecase, store *usecase.StorageUsecase, log *zap.SugaredLogger, get *usecase.GetUsecase, config *viper.Viper) (*grpc.Server, error) {
 	grpcserver := NewGRPCServer(log, auth, store, get, config)
 	address := config.GetString("grpc_server.address")

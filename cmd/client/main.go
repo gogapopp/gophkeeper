@@ -33,14 +33,17 @@ func main() {
 			fatal(err)
 		}
 	}()
+	// получаем сервисы
 	saveService := service.NewSaveService(repo)
 	hashService := service.NewHashService()
 	getService := service.NewGetService(repo)
 	conn, err := grpc_client.ConnectGRPC(config)
 	fatal(err)
 	defer conn.Close()
+	// подключаемся к серверу
 	grpcclient, err := grpc_client.NewGRPCClient(conn, hashService, saveService, getService, log)
 	fatal(err)
+	// создаём приложение
 	application := app.NewApplication(grpcclient, getService, Version, Commit, log)
 	err = application.CreateApp()
 	fatal(err)
