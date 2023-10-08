@@ -4,13 +4,14 @@ TODO: покрытие кода тестами
 
 ![project structure](image.png)
 
+WARNING: buttons can be activated twice in one click (this is a tview bug i think)
 in the CardData form the card number is checked by the Luhn algorithm  
 in the BinaryData form you need to enter file path and maximum file size up to 1gb  
 
 **users**                       
-| user_id | login | password | last_update_at | metainfo |
-|---------|-------|----------|----------------|----------|
-| PRIMARY KEY INT| BYTEA | BYTEA | TIMESTAMPTZ | BYTEA |
+| user_id | login | password | user_phrase | last_update_at | metainfo |
+|---------|-------|----------|-------------|----------------|----------|
+| PRIMARY KEY INT| BYTEA | BYTEA | varchar(128) | TIMESTAMPTZ | BYTEA |
 
 **textdata**                                                
 | text_data_id | user_id | unique_key | text_data | uploaded_at | metainfo |
