@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 )
 
 // структура grpc клиента
@@ -21,8 +21,12 @@ type GRPCClient struct {
 
 // ConnectGRPC пытается установить соединение с grpc сервером
 func ConnectGRPC(config *viper.Viper) (*grpc.ClientConn, error) {
+	creds, err := credentials.NewClientTLSFromFile("../../cert/server.crt", "")
+	if err != nil {
+		return nil, err
+	}
 	// устанавливаем соединение с сервером
-	conn, err := grpc.Dial(config.GetString("grpc_client.address"), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*1024)))
+	conn, err := grpc.Dial(config.GetString("grpc_client.address"), grpc.WithTransportCredentials(creds), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*1024)))
 	if err != nil {
 		return nil, err
 	}
