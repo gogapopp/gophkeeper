@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -20,9 +19,9 @@ func (r *Repository) Register(ctx context.Context, user models.User) error {
 		if errors.As(err, &repository.PgErr) {
 			switch repository.PgErr.Code {
 			case pgerrcode.UniqueViolation:
-				return fmt.Errorf("%s: %s", op, repository.ErrUserAlreadyExists)
+				return fmt.Errorf("%s: %w", op, repository.ErrUserAlreadyExists)
 			default:
-				return fmt.Errorf("%s: %s", op, err)
+				return fmt.Errorf("%s: %w", op, err)
 			}
 		}
 		return fmt.Errorf("%s: %s", op, err)
@@ -36,7 +35,7 @@ func (r *Repository) Login(ctx context.Context, user models.User) (string, error
 	var userID int
 	row := r.db.QueryRowContext(ctx, "SELECT user_id FROM users WHERE login=$1 AND password=$2 AND user_phrase=$3", user.Login, user.Password, user.UserPhrase)
 	if err := row.Scan(&userID); err != nil {
-		return "", fmt.Errorf("%s: %s", op, sql.ErrNoRows)
+		return "", fmt.Errorf("%s: %w", op, repository.ErrUserNotExists)
 	}
 	userIDstr := strconv.Itoa(userID)
 	return userIDstr, nil

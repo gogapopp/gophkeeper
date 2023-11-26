@@ -24,7 +24,7 @@ func (au *AuthUsecase) Register(ctx context.Context, user models.User) error {
 	user.UserPhrase = hasher.GenerateHash(user.UserPhrase)
 	err := au.auth.Register(ctx, user)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }
@@ -37,15 +37,15 @@ func (au *AuthUsecase) Login(ctx context.Context, user models.User) (string, err
 	user.UploadedAt = time.Now()
 	userIDstr, err := au.auth.Login(ctx, user)
 	if err != nil {
-		return "", fmt.Errorf("%s: %s", op, err)
+		return "", fmt.Errorf("%s: %w", op, err)
 	}
 	userID, err := strconv.Atoi(userIDstr)
 	if err != nil {
-		return "", fmt.Errorf("%s: %s", op, err)
+		return "", fmt.Errorf("%s: %w", op, err)
 	}
 	token, err := jwt.GenerateToken(userID)
 	if err != nil {
-		return "", fmt.Errorf("%s: %s", op, err)
+		return "", fmt.Errorf("%s: %w", op, err)
 	}
 	return token, nil
 }

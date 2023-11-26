@@ -20,6 +20,12 @@ var (
 	Commit  string
 )
 
+func fatal(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	config, err := config.LoadConfig()
 	fatal(err)
@@ -52,10 +58,4 @@ func main() {
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	<-sigint
 	log.Info("grpc client shutdown")
-}
-
-func fatal(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
 }

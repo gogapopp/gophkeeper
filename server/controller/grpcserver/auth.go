@@ -2,8 +2,7 @@ package grpcserver
 
 import (
 	"context"
-	"database/sql"
-	"strings"
+	"errors"
 
 	"github.com/gogapopp/gophkeeper/models"
 	pb "github.com/gogapopp/gophkeeper/proto"
@@ -23,7 +22,7 @@ func (gs *grpcServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb
 	err := gs.auth.Register(ctx, user)
 	if err != nil {
 		gs.log.Error(err)
-		if strings.Contains(err.Error(), repository.ErrUserAlreadyExists.Error()) {
+		if errors.Is(err, repository.ErrUserAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
 		return nil, status.Error(codes.InvalidArgument, "bad request")
@@ -43,7 +42,7 @@ func (gs *grpcServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Login
 	token, err := gs.auth.Login(ctx, user)
 	if err != nil {
 		gs.log.Error(err)
-		if strings.Contains(err.Error(), sql.ErrNoRows.Error()) {
+		if errors.Is(err, repository.ErrUserNotExists) {
 			return nil, status.Error(codes.Unauthenticated, "incorrect password or login")
 		}
 		return nil, status.Error(codes.InvalidArgument, "bad request")

@@ -19,7 +19,7 @@ func (su *StorageUsecase) AddTextData(ctx context.Context, textdata models.TextD
 	const op = "usecase.store.AddTextData"
 	err := su.store.AddTextData(ctx, textdata)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }
@@ -29,7 +29,7 @@ func (su *StorageUsecase) AddBinaryData(ctx context.Context, binarydata models.B
 	const op = "usecase.store.AddBinaryData"
 	err := su.store.AddBinaryData(ctx, binarydata)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }
@@ -39,7 +39,7 @@ func (su *StorageUsecase) AddCardData(ctx context.Context, carddata models.CardD
 	const op = "usecase.store.AddCardData"
 	err := su.store.AddCardData(ctx, carddata)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }

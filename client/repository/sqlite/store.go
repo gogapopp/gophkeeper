@@ -18,7 +18,7 @@ func (r *Repository) AddTextData(ctx context.Context, textdata models.TextData) 
 	const op = "sqlite.store.AddTextData"
 	_, err := r.db.ExecContext(ctx, textDataQuery, textdata.UserID, textdata.UniqueKey, textdata.TextData, textdata.UploadedAt.AsTime(), textdata.Metainfo)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }
@@ -28,7 +28,7 @@ func (r *Repository) AddBinaryData(ctx context.Context, binarydata models.Binary
 	const op = "sqlite.store.AddBinaryData"
 	_, err := r.db.ExecContext(ctx, binaryDataQuery, binarydata.UserID, binarydata.UniqueKey, binarydata.BinaryData, binarydata.UploadedAt.AsTime(), binarydata.Metainfo)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }
@@ -39,7 +39,7 @@ func (r *Repository) AddCardData(ctx context.Context, carddata models.CardData) 
 	_, err := r.db.ExecContext(ctx, cardDataQuery,
 		carddata.UserID, carddata.UniqueKey, carddata.CardNumberData, carddata.CardNameData, carddata.CardDateData, carddata.CvvData, carddata.UploadedAt.AsTime(), carddata.Metainfo)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }
@@ -59,25 +59,25 @@ func (r *Repository) SaveDatas(ctx context.Context, syncdata models.SyncData) er
 	for _, textdata := range syncdata.TextData {
 		_, err := tx.ExecContext(ctx, textDataQuery, textdata.UserID, textdata.UniqueKey, textdata.TextData, textdata.UploadedAt.AsTime(), textdata.Metainfo)
 		if err != nil {
-			return fmt.Errorf("%s: %s", op, err)
+			return fmt.Errorf("%s: %w", op, err)
 		}
 	}
 	for _, binarydata := range syncdata.BinaryData {
 		_, err := tx.ExecContext(ctx, binaryDataQuery, binarydata.UserID, binarydata.UniqueKey, binarydata.BinaryData, binarydata.UploadedAt.AsTime(), binarydata.Metainfo)
 		if err != nil {
-			return fmt.Errorf("%s: %s", op, err)
+			return fmt.Errorf("%s: %w", op, err)
 		}
 	}
 	for _, carddata := range syncdata.CardData {
 		_, err := tx.ExecContext(ctx, binaryDataQuery,
 			carddata.UserID, carddata.UniqueKey, carddata.CardNumberData, carddata.CardNameData, carddata.CardDateData, carddata.CvvData, carddata.UploadedAt.AsTime(), carddata.Metainfo)
 		if err != nil {
-			return fmt.Errorf("%s: %s", op, err)
+			return fmt.Errorf("%s: %w", op, err)
 		}
 	}
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }

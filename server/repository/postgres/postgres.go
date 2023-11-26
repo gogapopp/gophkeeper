@@ -16,12 +16,12 @@ func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
 	const op = "postgres.postgresql.NewRepo"
 	db, err := sql.Open("pgx", serverDBdsn)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %s", op, err)
+		return nil, nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %s", op, err)
+		return nil, nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	_, err = db.Exec(`
@@ -30,7 +30,6 @@ func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
 		login VARCHAR(256) NOT NULL UNIQUE,
 		password VARCHAR(256) NOT NULL,
 		user_phrase VARCHAR(256) NOT NULL,
-		last_update_at TIMESTAMPTZ
 	);
 	CREATE UNIQUE INDEX IF NOT EXISTS idx_login ON users(login);
 
@@ -68,7 +67,7 @@ func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
 	);
 	`)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %s", op, err)
+		return nil, nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return &Repository{db: db}, db, nil

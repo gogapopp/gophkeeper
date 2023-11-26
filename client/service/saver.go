@@ -93,7 +93,7 @@ func (s *SaveService) SaveDatas(ctx context.Context, syncdata *pb.SyncResponse) 
 	}
 	err := s.store.SaveDatas(ctx, preparedSyncdata)
 	if err != nil {
-		return fmt.Errorf("%s: %s", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }

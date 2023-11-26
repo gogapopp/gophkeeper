@@ -19,6 +19,12 @@ var (
 	Commit  string
 )
 
+func fatal(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	fmt.Println("Version: ", Version)
 	fmt.Println("Commit: ", Commit)
@@ -50,10 +56,4 @@ func main() {
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	<-sigint
 	log.Info("grpc server shutdown")
-}
-
-func fatal(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
 }

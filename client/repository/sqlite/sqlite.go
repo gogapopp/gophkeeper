@@ -16,12 +16,12 @@ func NewRepo(clientDBdsn string) (*Repository, *sql.DB, error) {
 	const op = "sqlite.sqlite.NewRepo"
 	db, err := sql.Open("sqlite3", clientDBdsn)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %s", op, err)
+		return nil, nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %s", op, err)
+		return nil, nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	_, err = db.Exec(`
@@ -59,7 +59,7 @@ func NewRepo(clientDBdsn string) (*Repository, *sql.DB, error) {
 	);
 	`)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %s", op, err)
+		return nil, nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return &Repository{db: db}, db, nil

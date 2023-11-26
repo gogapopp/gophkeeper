@@ -45,7 +45,7 @@ func (r *Repository) GetDatas(uniqueKeys map[string][]string) (models.SyncData, 
 		// отправляем запрос
 		rows, err := r.db.Query(query, args...)
 		if err != nil {
-			return models.SyncData{}, fmt.Errorf("%s: %s", op, err)
+			return models.SyncData{}, fmt.Errorf("%s: %w", op, err)
 		}
 		defer rows.Close()
 		// получаем данные из БД для каждого типа данных
@@ -63,7 +63,7 @@ func (r *Repository) GetDatas(uniqueKeys map[string][]string) (models.SyncData, 
 					if err == sql.ErrNoRows {
 						return models.SyncData{}, err
 					}
-					return models.SyncData{}, fmt.Errorf("%s: %s", op, err)
+					return models.SyncData{}, fmt.Errorf("%s: %w", op, err)
 				}
 				td.UploadedAt = timestamppb.New(uploadedAt)
 				syncData.TextData = append(syncData.TextData, td)
@@ -81,7 +81,7 @@ func (r *Repository) GetDatas(uniqueKeys map[string][]string) (models.SyncData, 
 					if err == sql.ErrNoRows {
 						return models.SyncData{}, err
 					}
-					return models.SyncData{}, fmt.Errorf("%s: %s", op, err)
+					return models.SyncData{}, fmt.Errorf("%s: %w", op, err)
 				}
 				bd.UploadedAt = timestamppb.New(uploadedAt)
 				syncData.BinaryData = append(syncData.BinaryData, bd)
@@ -102,7 +102,7 @@ func (r *Repository) GetDatas(uniqueKeys map[string][]string) (models.SyncData, 
 					if err == sql.ErrNoRows {
 						return models.SyncData{}, err
 					}
-					return models.SyncData{}, fmt.Errorf("%s: %s", op, err)
+					return models.SyncData{}, fmt.Errorf("%s: %w", op, err)
 				}
 				cd.UploadedAt = timestamppb.New(uploadedAt)
 				syncData.CardData = append(syncData.CardData, cd)
@@ -114,7 +114,7 @@ func (r *Repository) GetDatas(uniqueKeys map[string][]string) (models.SyncData, 
 			if err == sql.ErrNoRows {
 				return models.SyncData{}, err
 			}
-			return models.SyncData{}, fmt.Errorf("%s: %s", op, err)
+			return models.SyncData{}, fmt.Errorf("%s: %w", op, err)
 		}
 	}
 	return syncData, nil

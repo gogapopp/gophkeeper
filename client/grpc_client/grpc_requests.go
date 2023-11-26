@@ -28,7 +28,7 @@ func (g *GRPCClient) Register(ctx context.Context, user models.User) error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return err
 }
 
 // Login  отправляет запрос на логин пользователя
@@ -42,7 +42,7 @@ func (g *GRPCClient) Login(ctx context.Context, user models.User) (*pb.LoginResp
 	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response, err
 }
 
 // AddTextData отправляет запрос на сохранение текстовых данных на сервере
@@ -68,7 +68,7 @@ func (g *GRPCClient) AddTextData(ctx context.Context, textData models.TextData, 
 	if err != nil {
 		return err
 	}
-	return nil
+	return err
 }
 
 // AddBinaryData отправляет запрос на сохранение бинарных данных на сервере
@@ -94,7 +94,7 @@ func (g *GRPCClient) AddBinaryData(ctx context.Context, binaryData models.Binary
 	if err != nil {
 		return err
 	}
-	return nil
+	return err
 }
 
 // AddCardData отправляет запрос на сохранение данных карты на сервер
@@ -124,7 +124,7 @@ func (g *GRPCClient) AddCardData(ctx context.Context, cardData models.CardData, 
 		g.log.Info(err)
 		return err
 	}
-	return nil
+	return err
 }
 
 // SyncData отправляет запрос на синхронизацию данных между клиентом и сервером по уникальным ключам пользователя
@@ -150,5 +150,5 @@ func (g *GRPCClient) SyncData(ctx context.Context, userID int) error {
 		g.log.Info(err)
 		return err
 	}
-	return nil
+	return err
 }

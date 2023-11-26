@@ -33,28 +33,28 @@ func (g *GetService) GetTextData(ctx context.Context, uniqueKey int, userSecretP
 	const op = "service.getter.GetTextData"
 	textdata, err := g.get.GetTextData(ctx, uniqueKey)
 	if err != nil {
-		return textdata, fmt.Errorf("%s: %s", op, err)
+		return textdata, fmt.Errorf("%s: %w", op, err)
 	}
 	fileName := fmt.Sprintf("text_data_%d.txt", uniqueKey)
 	file, err := os.Create(fileName)
 	if err != nil {
-		return textdata, fmt.Errorf("%s: %s", op, err)
+		return textdata, fmt.Errorf("%s: %w", op, err)
 	}
 	defer file.Close()
 	uploadedAt := textdata.UploadedAt.AsTime()
 	encryptedTextData, err := hasher.Decrypt(textdata.TextData, []byte(userSecretPhrase))
 	if err != nil {
-		return textdata, err
+		return textdata, fmt.Errorf("%s: %w", op, err)
 	}
 	encryptedMetainfo, err := hasher.Decrypt(textdata.Metainfo, []byte(userSecretPhrase))
 	if err != nil {
-		return textdata, err
+		return textdata, fmt.Errorf("%s: %w", op, err)
 	}
 	// пишем в файл
 	_, err = fmt.Fprintf(file, "UniqueKey: %s\nTextData: %s\nUploadedAt: %s\nMetainfo: %s\n",
 		textdata.UniqueKey, string(encryptedTextData), uploadedAt, string(encryptedMetainfo))
 	if err != nil {
-		return textdata, fmt.Errorf("%s: %s", op, err)
+		return textdata, fmt.Errorf("%s: %w", op, err)
 	}
 	return textdata, nil
 }
@@ -64,12 +64,12 @@ func (g *GetService) GetBinaryData(ctx context.Context, uniqueKey int, userSecre
 	const op = "service.getter.GetBinaryData"
 	binarydata, err := g.get.GetBinaryData(ctx, uniqueKey)
 	if err != nil {
-		return binarydata, fmt.Errorf("%s: %s", op, err)
+		return binarydata, fmt.Errorf("%s: %w", op, err)
 	}
 	fileTxtName := fmt.Sprintf("binary_data_%d.txt", uniqueKey)
 	fileTXT, err := os.Create(fileTxtName)
 	if err != nil {
-		return binarydata, fmt.Errorf("%s: %s", op, err)
+		return binarydata, fmt.Errorf("%s: %w", op, err)
 	}
 	defer fileTXT.Close()
 	fileBinaryName := fmt.Sprintf("binary_data_%d.exe", uniqueKey)
@@ -80,23 +80,23 @@ func (g *GetService) GetBinaryData(ctx context.Context, uniqueKey int, userSecre
 	defer fileEXE.Close()
 	encryptedBinary, err := hasher.Decrypt(binarydata.BinaryData, []byte(userSecretPhrase))
 	if err != nil {
-		return binarydata, err
+		return binarydata, fmt.Errorf("%s: %w", op, err)
 	}
 	// создаём файл .exe
 	err = os.WriteFile(fileBinaryName, encryptedBinary, 0644)
 	if err != nil {
-		return binarydata, fmt.Errorf("%s: %s", op, err)
+		return binarydata, fmt.Errorf("%s: %w", op, err)
 	}
 	uploadedAt := binarydata.UploadedAt.AsTime()
 	encryptedMetainfo, err := hasher.Decrypt(binarydata.Metainfo, []byte(userSecretPhrase))
 	if err != nil {
-		return binarydata, err
+		return binarydata, fmt.Errorf("%s: %w", op, err)
 	}
 	// пишем в файл .txt
 	_, err = fmt.Fprintf(fileTXT, "UniqueKey: %d\nUploadedAt: %s\nMetainfo: %s\n",
 		uniqueKey, uploadedAt, encryptedMetainfo)
 	if err != nil {
-		return binarydata, fmt.Errorf("%s: %s", op, err)
+		return binarydata, fmt.Errorf("%s: %w", op, err)
 	}
 	return binarydata, nil
 }
@@ -106,41 +106,41 @@ func (g *GetService) GetCardData(ctx context.Context, uniqueKey int, userSecretP
 	const op = "service.getter.GetCardData"
 	carddata, err := g.get.GetCardData(ctx, uniqueKey)
 	if err != nil {
-		return carddata, fmt.Errorf("%s: %s", op, err)
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	fileName := fmt.Sprintf("card_data_%d.txt", uniqueKey)
 	file, err := os.Create(fileName)
 	if err != nil {
-		return carddata, fmt.Errorf("%s: %s", op, err)
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	defer file.Close()
 	uploadedAt := carddata.UploadedAt.AsTime()
 	// дешефруем данные
 	encryptedCardNumber, err := hasher.Decrypt(carddata.CardNumberData, []byte(userSecretPhrase))
 	if err != nil {
-		return carddata, err
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	encryptedName, err := hasher.Decrypt(carddata.CardNameData, []byte(userSecretPhrase))
 	if err != nil {
-		return carddata, err
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	encryptedCardDate, err := hasher.Decrypt(carddata.CardDateData, []byte(userSecretPhrase))
 	if err != nil {
-		return carddata, err
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	encryptedCVV, err := hasher.Decrypt(carddata.CvvData, []byte(userSecretPhrase))
 	if err != nil {
-		return carddata, err
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	encryptedMetainfo, err := hasher.Decrypt(carddata.Metainfo, []byte(userSecretPhrase))
 	if err != nil {
-		return carddata, err
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	// пишем в файл
 	_, err = fmt.Fprintf(file, "UniqueKey: %s\nCardNumberData: %s\nCardNameData: %s\nCardDateData: %s\nCVVData: %s\nUploadedAt: %s\nMetainfo: %s\n",
 		carddata.UniqueKey, encryptedCardNumber, encryptedName, encryptedCardDate, encryptedCVV, uploadedAt, encryptedMetainfo)
 	if err != nil {
-		return carddata, fmt.Errorf("%s: %s", op, err)
+		return carddata, fmt.Errorf("%s: %w", op, err)
 	}
 	return carddata, nil
 }
@@ -150,7 +150,7 @@ func (g *GetService) GetDatas(ctx context.Context, table string) (map[int]string
 	const op = "service.getter.GetDatas"
 	datas, err := g.get.GetDatas(ctx, table)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %s", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	return datas, nil
 }
