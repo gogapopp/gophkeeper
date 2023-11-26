@@ -1,0 +1,6 @@
+grpc_client:
+  address: "localhost:8080"
+  clientDBdsn: "./storage.db"
+grpc_server:
+  address: ":8080"
+  serverDBdsn: "host=localhost user=postgres database=postgres port=5432 password=123"
