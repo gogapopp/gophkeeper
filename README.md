@@ -10,7 +10,18 @@ WARNING: buttons can be activated twice in one click (this is a tview bug i thin
 In the card data form the card number is checked by the Luhn algorithm  
 In the binary data form you need to enter file path and maximum file size up to 1gb  
 
-![project structure](https://postimg.cc/FYXJv3C8)
+project structure  
+[![image.png](https://i.postimg.cc/XNfSdVV9/image.png)](https://postimg.cc/c6LbNGtJ)  
+registration in client  
+[![client-reg.png](https://i.postimg.cc/1340Fck2/client-reg.png)](https://postimg.cc/XrSySF7k)  
+client capabilities  
+[![client-abl.png](https://i.postimg.cc/htHmdFbQ/client-abl.png)](https://postimg.cc/G4xtW5fb)  
+the forms of data that the client supports  
+[![client-save.png](https://i.postimg.cc/50jMdrTp/client-save.png)](https://postimg.cc/G80fvXcs)  
+saving to the data  
+[![client-save-card.png](https://i.postimg.cc/zv56DPP9/client-save-card.png)](https://postimg.cc/BLYMMN3g)  
+getting the data  
+[![client-get-text.png](https://i.postimg.cc/wvFcJfBK/client-get-text.png)](https://postimg.cc/dkkyc9dn)  
 
 **users**                       
 | user_id | login | password | user_phrase | metainfo |

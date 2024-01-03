@@ -28,7 +28,7 @@ func NewGRPCServer(log *zap.SugaredLogger, auth *usecase.AuthUsecase, store *use
 	}
 	opts := []grpc.ServerOption{
 		grpc.Creds(creds),
-		grpc.MaxRecvMsgSize(50 * 1024 * 1024),
+		grpc.MaxRecvMsgSize(1024 * 1024 * 1024),
 		grpc.MaxSendMsgSize(1024 * 1024 * 1024),
 	}
 	// создаём экземпляр grpc сервера

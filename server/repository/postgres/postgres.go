@@ -29,7 +29,7 @@ func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
 		user_id SERIAL PRIMARY KEY,
 		login VARCHAR(256) NOT NULL UNIQUE,
 		password VARCHAR(256) NOT NULL,
-		user_phrase VARCHAR(256) NOT NULL,
+		user_phrase VARCHAR(256) NOT NULL
 	);
 	CREATE UNIQUE INDEX IF NOT EXISTS idx_login ON users(login);
 

@@ -29,9 +29,9 @@ type Application struct {
 	userID           int
 	grpcClient       *grpc_client.GRPCClient
 	getService       *service.GetService
+	log              *zap.SugaredLogger
 	version          string
 	commit           string
-	log              *zap.SugaredLogger
 }
 
 // NewApplication возращает экземпляр структуры приложения
@@ -39,9 +39,9 @@ func NewApplication(grpcClient *grpc_client.GRPCClient, getService *service.GetS
 	return &Application{
 		grpcClient: grpcClient,
 		getService: getService,
+		log:        log,
 		version:    version,
 		commit:     commit,
-		log:        log,
 	}
 }
 
