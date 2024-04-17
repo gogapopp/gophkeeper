@@ -31,18 +31,20 @@ func main() {
 	fatal(err)
 	log, err := logger.SetupLogger()
 	fatal(err)
-	repo, db, err := sqlite.NewRepo(config.GetString("grpc_client.clientDBdsn"))
+	repo, err := sqlite.NewRepo(config.GetString("grpc_client.clientDBdsn"))
 	fatal(err)
 	// закрываем подключение в БД при завершении программы
 	defer func() {
-		if err = db.Close(); err != nil {
+		if err = repo.Close(); err != nil {
 			fatal(err)
 		}
 	}()
 	// получаем сервисы
-	saveService := service.NewSaveService(repo)
-	hashService := service.NewHashService()
-	getService := service.NewGetService(repo)
+	var (
+		saveService = service.NewSaveService(repo)
+		hashService = service.NewHashService()
+		getService  = service.NewGetService(repo)
+	)
 	conn, err := grpc_client.ConnectGRPC(config)
 	fatal(err)
 	defer conn.Close()

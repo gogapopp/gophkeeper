@@ -12,16 +12,16 @@ type Repository struct {
 }
 
 // NewRepo подключается к БД и создаёт sql таблицы
-func NewRepo(clientDBdsn string) (*Repository, *sql.DB, error) {
+func NewRepo(clientDBdsn string) (*Repository, error) {
 	const op = "sqlite.sqlite.NewRepo"
 	db, err := sql.Open("sqlite3", clientDBdsn)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	_, err = db.Exec(`
@@ -59,8 +59,12 @@ func NewRepo(clientDBdsn string) (*Repository, *sql.DB, error) {
 	);
 	`)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &Repository{db: db}, db, nil
+	return &Repository{db: db}, nil
+}
+
+func (r *Repository) Close() error {
+	return r.db.Close()
 }

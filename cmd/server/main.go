@@ -32,19 +32,21 @@ func main() {
 	fatal(err)
 	log, err := logger.SetupLogger()
 	fatal(err)
-	repo, db, err := postgres.NewRepo(config.GetString("grpc_server.serverDBdsn"))
+	repo, err := postgres.NewRepo(config.GetString("grpc_server.serverDBdsn"))
 	fatal(err)
 	// закрываем подключение в БД при завершении программы
 	defer func() {
-		if err = db.Close(); err != nil {
+		if err = repo.Close(); err != nil {
 			fatal(err)
 		}
 	}()
-	// создаём сервис аутентификации
-	authusecase := usecase.NewAuthUsecase(repo)
-	// создаём сервис хранения данных
-	storeusecase := usecase.NewStorageUsecase(repo)
-	getusecase := usecase.NewGetUsecase(repo)
+	var (
+		// создаём сервис аутентификации
+		authusecase = usecase.NewAuthUsecase(repo)
+		// создаём сервис хранения данных
+		storeusecase = usecase.NewStorageUsecase(repo)
+		getusecase   = usecase.NewGetUsecase(repo)
+	)
 	// запускаем сервер
 	go func() {
 		GRPCserver, err := grpcserver.RunGRPCServer(authusecase, storeusecase, log, getusecase, config)

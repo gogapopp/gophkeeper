@@ -12,16 +12,16 @@ type Repository struct {
 }
 
 // NewRepo подключается к БД и создаёт sql таблицы
-func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
+func NewRepo(serverDBdsn string) (*Repository, error) {
 	const op = "postgres.postgresql.NewRepo"
 	db, err := sql.Open("pgx", serverDBdsn)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	_, err = db.Exec(`
@@ -67,8 +67,12 @@ func NewRepo(serverDBdsn string) (*Repository, *sql.DB, error) {
 	);
 	`)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &Repository{db: db}, db, nil
+	return &Repository{db: db}, nil
+}
+
+func (r *Repository) Close() error {
+	return r.db.Close()
 }
