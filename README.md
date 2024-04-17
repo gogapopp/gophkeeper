@@ -1,8 +1,6 @@
 # gophkeeper
 Gophkeeper: this is a storage application for your data with server storage that can be synchronized with two different clients in the same user "account" (all data in storages is encrypted)    
 
-TODO: добавить тесты и отправку запроса
-
 how to setup:  
 download the source code and write the "make" command in the console and you will get .exe files in the cmd directory  
 
